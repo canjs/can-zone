@@ -37,22 +37,37 @@ var overrideSetTimeout = function(promises){
 	});
 };
 
+function OverrideCollection(promises) {
+	this.promises = [];
+	var o = this.overrides = [];
+	o.push(overrideSetTimeout(promises));
+}
 
-function waitUntilEmpty(fn) {
+OverrideCollection.prototype.release = function(){
+	var o = this.overrides;
+	for(var i = 0, len = o.length; i < len; i++) {
+		o[i].release();
+	}
+};
+
+function canWait(fn) {
 	var promises = [];
+	var thunks = [];
 
-	var overrides = [];
-	overrides.push(overrideSetTimeout(promises));
+	var overrides = new OverrideCollection(thunks);
 
 	// Call the function
 	fn();
+	overrides.release();
 
-	if(promises.length) {
-		return Promise.all(promises).then(function(){
-			overrides.forEach(function(override){
-				override.release();
-			});
-		});
+	function waitOnAll() {
+		if(promises.length) {
+			var waiting = [].slice.call(promises);
+			promises.length = 0;
+
+			return Promise.all(waiting).then(waitOnAll);
+		}
+		return Promise.resolve();
 	}
-	return Promise.resolve();
+	return waitOnAll();
 }

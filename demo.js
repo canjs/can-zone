@@ -55,8 +55,39 @@ var requests = [
 		requestAnimationFrame(function(){
 			results.push("3-c");
 		});
-	}
+	},
 
+	function(results){
+		Promise.resolve().then(function(){
+			results.push("4-a");
+
+			setTimeout(function(){
+				results.push("4-b");
+
+				var p = new Promise(function(resolve){
+					results.push("4-c");
+
+					Promise.resolve().then(function(){
+						results.push("4-d");
+
+						resolve();
+					});
+				});
+
+				var pp = p.then(function(){
+					results.push("4-e");
+
+					return new Promise(function(resolve, reject){
+						reject(new Error("Sorry"));
+					});
+				});
+
+				pp.then(null, function(){
+					results.push("4-f");
+				});
+			});
+		});
+	}
 ];
 
 requests.forEach(function(fn){
@@ -75,7 +106,7 @@ var requestColors = {
 	"1": "#2EC4B6",
 	"2": "#E71D36",
 	"3": "#FF9F1C",
-	"4": "#011627"
+	"4": { bg: "#011627", font: "#FDFFFC" }
 };
 
 function drawRow(results) {
@@ -86,7 +117,8 @@ function drawRow(results) {
 		var td = cEl("td");
 		var requestNumber = thing.split("-")[0];
 		var color = requestColors[requestNumber];
-		td.style.background = color;
+		td.style.background = color.bg ? color.bg : color;
+		td.style.color = color.font ? color.font : td.style.color;
 		td.textContent = thing;
 		tr.appendChild(td);
 	});

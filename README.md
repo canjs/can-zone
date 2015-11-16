@@ -57,6 +57,7 @@ For can-wait to work we have to override various task-creating functionality, th
 **Microtasks**
 
 * requestAnimationFrame
+* Promise
 
 ## License
 

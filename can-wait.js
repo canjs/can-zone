@@ -4,6 +4,11 @@ var g = typeof WorkerGlobalScope !== "undefined" && (self instanceof WorkerGloba
 	? global
 	: window;
 
+// Keep a local reference since we will be overriding this later.
+var Promise = g.Promise;
+
+var has = Object.prototype.hasOwnProperty;
+
 function Deferred(){
 	var dfd = this;
 	this.promise = new Promise(function(resolve, reject){
@@ -36,52 +41,77 @@ Override.prototype.release = function(){
 	this.obj[this.name] = this.old;
 };
 
-var overrideSetTimeout = function(request){
-	return new Override(g, "setTimeout", function(setTimeout){
-		return function(fn, timeout){
-			var callback = waitWithinRequest(fn);
-			return setTimeout.call(this, callback, timeout);
-		}
-	});
-};
+var allOverrides = [
+	function(request){
+		return new Override(g, "setTimeout", function(setTimeout){
+			return function(fn, timeout){
+				var callback = waitWithinRequest(fn);
+				return setTimeout.call(this, callback, timeout);
+			}
+		});
+	},
 
-var overrideRAF = function(request){
-	return new Override(g, "requestAnimationFrame", function(rAF){
-		return function(fn){
-			var callback = waitWithinRequest(fn);
-			return rAF.call(this, callback);
-		};
-	});
-};
+	function(request){
+		return new Override(g, "requestAnimationFrame", function(rAF){
+			return function(fn){
+				var callback = waitWithinRequest(fn);
+				return rAF.call(this, callback);
+			};
+		});
+	},
 
-var overrideXHR = function(request){
-	return new Override(XMLHttpRequest.prototype, "send", function(send){
-		return function(){
-			var onreadystatechange = this.onreadystatechange,
-				onload = this.onload,
-				onerror = this.onerror,
-				error;
+	function(request){
+		return new Override(XMLHttpRequest.prototype, "send", function(send){
+			return function(){
+				var onreadystatechange = this.onreadystatechange,
+					onload = this.onload,
+					onerror = this.onerror,
+					error;
 
-			var request = waitWithinRequest.currentRequest;
-			var callback = waitWithinRequest(function(){
-				if(this.readyState === 4) {
-					onreadystatechange && onreadystatechange.apply(this, arguments);
+				var request = waitWithinRequest.currentRequest;
+				var callback = waitWithinRequest(function(){
+					if(this.readyState === 4) {
+						onreadystatechange && onreadystatechange.apply(this, arguments);
 
-					if(error)
-						onerror && onerror.apply(this, arguments);
-					else
-						onload && onload.apply(this, arguments);
-				} else {
-					request.waits++;
-				}
-			});
-			this.onreadystatechange = callback;
-			this.onerror = function(err){ error = err };
+						if(error)
+							onerror && onerror.apply(this, arguments);
+						else
+							onload && onload.apply(this, arguments);
+					} else {
+						request.waits++;
+					}
+				});
+				this.onreadystatechange = callback;
+				this.onerror = function(err){ error = err };
 
-			return send.apply(this, arguments);
-		};
-	});
-};
+				return send.apply(this, arguments);
+			};
+		});
+	},
+
+	function(request) {
+		return new Override(Promise.prototype, "then", function(then){
+			return function(onFulfilled, onRejected){
+				var fn;
+				var callback = waitWithinRequest(function(){
+					if(fn) {
+						return fn.apply(this, arguments);
+					}
+				});
+
+				var callWith = function(cb){
+					return function(){
+						fn = cb;
+						return callback.apply(this, arguments);
+					};
+				};
+
+				return then.call(this, callWith(onFulfilled),
+								 callWith(onRejected));
+			};
+		});
+	}
+];
 
 function Request() {
 	this.deferred = new Deferred();
@@ -89,9 +119,9 @@ function Request() {
 	this.waits = 0;
 	var o = this.overrides = [];
 
-	o.push(overrideSetTimeout(this));
-	o.push(overrideRAF(this));
-	o.push(overrideXHR(this));
+	for(var i = 0, len = allOverrides.length; i < len; i++) {
+		o.push(allOverrides[i](this));
+	}
 }
 
 Request.prototype.trap = function(){

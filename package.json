@@ -2,7 +2,7 @@
   "name": "can-wait",
   "version": "0.0.1",
   "description": "Asynchronous render for all frameworks",
-  "main": "wait.js",
+  "main": "can-wait.js",
   "scripts": {
     "test": "node test/test.js"
   },
@@ -22,5 +22,8 @@
   "bugs": {
     "url": "https://github.com/canjs/can-wait/issues"
   },
-  "homepage": "https://github.com/canjs/can-wait#readme"
+  "homepage": "https://github.com/canjs/can-wait#readme",
+  "devDependencies": {
+    "steal": "^0.12.4"
+  }
 }

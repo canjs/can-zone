@@ -1,3 +1,5 @@
+var canWait = require("can-wait");
+
 var results = [];
 
 var requests = [
@@ -35,7 +37,6 @@ var requests = [
 		setTimeout(function(){
 			results.push("2-c");
 		});
-
 	},
 
 	function(results) {

@@ -163,7 +163,14 @@ Request.prototype.run = function(fn, ctx, args){
 Request.prototype.runWithinScope = function(fn, ctx, args){
 	waitWithinRequest.currentRequest = this;
 	this.trap();
-	var res = fn.apply(ctx, args);
+	var res;
+
+	try {
+		res = fn.apply(ctx, args);
+	} catch(err) {
+		this.errors.push(err);
+	}
+
 	this.release();
 	return res;
 };

@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/canjs/can-wait.svg?branch=master)](https://travis-ci.org/canjs/can-wait)
+[![npm version](https://badge.fury.io/js/can-wait.svg)](http://badge.fury.io/js/can-wait)
+
 # can-wait
 
 A library that tracks asynchronous activity and lets you know when it has completed. Useful when you need to call a function and wait for all async behavior to complete, such as when performing rendering.
@@ -31,7 +34,6 @@ canWait(function(){
 		results.push("c");
 	};
 	xhr.send();
-
 
 }).then(
 	function success() {

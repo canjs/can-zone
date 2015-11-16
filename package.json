@@ -4,7 +4,7 @@
   "description": "Asynchronous render for all frameworks",
   "main": "can-wait.js",
   "scripts": {
-    "test": "node test/test.js"
+    "test": "testee test/test.html --browsers firefox --reporter Spec"
   },
   "repository": {
     "type": "git",
@@ -24,6 +24,8 @@
   },
   "homepage": "https://github.com/canjs/can-wait#readme",
   "devDependencies": {
-    "steal": "^0.12.4"
+    "steal": "^0.12.4",
+    "steal-qunit": "^0.1.1",
+    "testee": "^0.2.2"
   }
 }

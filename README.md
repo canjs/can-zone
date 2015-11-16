@@ -43,6 +43,20 @@ canWait(function(){
 );
 ```
 
+## Tasks
+
+JavaScript uses various task queues (and a microtask queue) to run JavaScript in the event loop. See [this article](https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/) and [this StackOverflow answer](http://stackoverflow.com/questions/25915634/difference-between-microtask-and-macrotask-within-an-event-loop-context) to learn more.
+
+For can-wait to work we have to override various task-creating functionality, this is the list of what we currently implement:
+
+**Macrotasks**
+
+* setTimeout
+
+**Microtasks**
+
+* requestAnimationFrame
+
 ## License
 
 MIT

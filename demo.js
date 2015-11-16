@@ -41,6 +41,10 @@ var requests = [
 	function(results) {
 		setTimeout(function(){
 			results.push("3-a");
+
+			requestAnimationFrame(function(){
+				results.push("3-d");
+			});
 		}, 100);
 
 		setTimeout(function(){

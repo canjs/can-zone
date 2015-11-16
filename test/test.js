@@ -183,3 +183,21 @@ QUnit.test("A lot of resolving and rejecting", function(){
 
 	QUnit.stop();
 });
+
+QUnit.test("Throwing in a Promise chain is returned", function(){
+	var caught;
+	canWait(function(){
+		Promise.resolve().then(function(){
+			throw new Error("oh no");
+		}).then(null, function(err){
+			caught = err;
+		});
+	}).then(function(){
+		QUnit.ok(true, "Even though a Promise rejected we still get a " +
+				 "resolved canWait promise");
+		QUnit.ok(!!caught, "Called the Promise errback");
+		QUnit.equal(caught.message, "oh no", "Correct error object");
+	}).then(QUnit.start);
+
+	QUnit.stop();
+});

@@ -17,12 +17,12 @@ function Deferred(){
 	});
 }
 
-var waitWithinRequest = g.canWait = function(fn){
+var waitWithinRequest = g.canWait = function(fn, catchErrors){
 	var request = waitWithinRequest.currentRequest;
 	request.waits++;
 
 	return function(){
-		return request.run(fn, this, arguments);
+		return request.run(fn, this, arguments, catchErrors);
 	};
 };
 
@@ -100,7 +100,7 @@ var allOverrides = [
 					if(fn) {
 						return fn.apply(this, arguments);
 					}
-				});
+				}, false);
 
 				var callWith = function(cb){
 					return function(){
@@ -151,27 +151,39 @@ Request.prototype.end = function(){
 	}
 };
 
-Request.prototype.run = function(fn, ctx, args){
-	var res = this.runWithinScope(fn, ctx, args);
+Request.prototype.run = function(fn, ctx, args, catchErrors){
+	var res, error;
+	try {
+		res = this.runWithinScope(fn, ctx, args, catchErrors);
+	} catch(err) {
+		error = err;
+	}
 	this.waits--;
 	if(this.waits === 0) {
 		this.end();
 	}
+	if(error)
+		throw error;
 	return res;
 };
 
-Request.prototype.runWithinScope = function(fn, ctx, args){
+Request.prototype.runWithinScope = function(fn, ctx, args, catchErrors){
 	waitWithinRequest.currentRequest = this;
 	this.trap();
-	var res;
 
+	var res;
 	try {
 		res = fn.apply(ctx, args);
+		this.release();
 	} catch(err) {
-		this.errors.push(err);
+		this.release();
+		if(catchErrors !== false) {
+			this.errors.push(err);
+		} else {
+			throw err;
+		}
 	}
 
-	this.release();
 	return res;
 };
 

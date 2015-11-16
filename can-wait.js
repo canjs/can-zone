@@ -65,13 +65,18 @@ var allOverrides = [
 			return function(){
 				var onreadystatechange = this.onreadystatechange,
 					onload = this.onload,
-					onerror = this.onerror;
+					onerror = this.onerror,
+					xhr = this;
 
 				var request = waitWithinRequest.currentRequest;
-				var callback = waitWithinRequest(function(){
-					if(this.readyState === 4) {
-						onreadystatechange && onreadystatechange.apply(this, arguments);
-						onload && onload.apply(this, arguments);
+				var callback = waitWithinRequest(function(ev){
+					var xhr = ev.target;
+					if(xhr.readyState === 4) {
+						onreadystatechange && onreadystatechange.apply(xhr, arguments);
+						if(onload && !xhr.__onloadCalled) {
+							onload.apply(xhr, arguments);
+							xhr.__onloadCalled = true;
+						}
 					} else {
 						request.waits++;
 					}

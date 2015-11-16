@@ -38,13 +38,14 @@ QUnit.test("XHR errors are returned", function(){
 		});
 
 		var xhr = new XMLHttpRequest();
-		xhr.open("GET", "somefake://somefakething/foo");
+		xhr.open("GET", "http://chat.donejs.com/api/messages");
 		xhr.onreadystatechange = function(){
 			if(xhr.readyState === 4) {
 				waits++;
 			}
 		};
 		xhr.send();
+		xhr.onerror(new Error("oh no"));
 	}).then(null, function(errors){
 
 		QUnit.equal(waits, 2, "Waited for the setTimeout and the xhr");

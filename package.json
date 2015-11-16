@@ -27,5 +27,10 @@
     "steal": "^0.12.4",
     "steal-qunit": "^0.1.1",
     "testee": "^0.2.2"
+  },
+  "system": {
+    "npmDependencies": [
+      "steal-qunit"
+    ]
   }
 }

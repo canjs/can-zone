@@ -65,24 +65,22 @@ var allOverrides = [
 			return function(){
 				var onreadystatechange = this.onreadystatechange,
 					onload = this.onload,
-					onerror = this.onerror,
-					error;
+					onerror = this.onerror;
 
 				var request = waitWithinRequest.currentRequest;
 				var callback = waitWithinRequest(function(){
 					if(this.readyState === 4) {
 						onreadystatechange && onreadystatechange.apply(this, arguments);
-
-						if(error)
-							onerror && onerror.apply(this, arguments);
-						else
-							onload && onload.apply(this, arguments);
+						onload && onload.apply(this, arguments);
 					} else {
 						request.waits++;
 					}
 				});
 				this.onreadystatechange = callback;
-				this.onerror = function(err){ error = err };
+				this.onerror = function(err){
+					request.errors.push(err);
+					onerror && onerror.apply(this, arguments);
+				};
 
 				return send.apply(this, arguments);
 			};
@@ -115,8 +113,9 @@ var allOverrides = [
 
 function Request() {
 	this.deferred = new Deferred();
-	this.promises = [];
 	this.waits = 0;
+	this.errors = [];
+	this.responses = [];
 	var o = this.overrides = [];
 
 	for(var i = 0, len = allOverrides.length; i < len; i++) {
@@ -138,11 +137,20 @@ Request.prototype.release = function(){
 	}
 };
 
+Request.prototype.end = function(){
+	var dfd = this.deferred;
+	if(this.errors.length) {
+		dfd.reject(this.errors);
+	} else {
+		dfd.resolve();
+	}
+};
+
 Request.prototype.run = function(fn, ctx, args){
 	var res = this.runWithinScope(fn, ctx, args);
 	this.waits--;
 	if(this.waits === 0) {
-		this.deferred.resolve();
+		this.end();
 	}
 	return res;
 };

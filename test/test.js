@@ -29,6 +29,32 @@ QUnit.test("all results returned", function(){
 	QUnit.stop();
 });
 
+QUnit.test("XHR errors are returned", function(){
+	var waits = 0;
+
+	canWait(function(){
+		setTimeout(function(){
+			waits++;
+		});
+
+		var xhr = new XMLHttpRequest();
+		xhr.open("GET", "somefake://somefakething/foo");
+		xhr.onreadystatechange = function(){
+			if(xhr.readyState === 4) {
+				waits++;
+			}
+		};
+		xhr.send();
+	}).then(null, function(errors){
+
+		QUnit.equal(waits, 2, "Waited for the setTimeout and the xhr");
+		QUnit.equal(errors.length, 1, "There was one error with this request");
+
+	}).then(QUnit.start);
+
+	QUnit.stop();
+});
+
 QUnit.module("nested setTimeouts", {
 	beforeEach: function(test){
 		var results = this.results = [];

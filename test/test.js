@@ -56,6 +56,21 @@ QUnit.test("XHR errors are returned", function(){
 	QUnit.stop();
 });
 
+QUnit.test("Rejects when an error occurs in a setTimeout callback", function(){
+	var waits = 0;
+
+	canWait(function(){
+		setTimeout(function(){
+			throw new Error("ha ha");
+		}, 20);
+	}).then(null, function(errors){
+		QUnit.equal(errors.length, 1, "There was one error");
+		QUnit.equal(errors[0].message, "ha ha", "Same error object");
+	}).then(QUnit.start);
+
+	QUnit.stop();
+});
+
 QUnit.module("nested setTimeouts", {
 	beforeEach: function(test){
 		var results = this.results = [];
@@ -164,6 +179,24 @@ QUnit.test("A lot of resolving and rejecting", function(){
 
 		QUnit.equal(results.length, 6, "All 6 promises completed");
 
+	}).then(QUnit.start);
+
+	QUnit.stop();
+});
+
+QUnit.test("Throwing in a Promise chain is returned", function(){
+	var caught;
+	canWait(function(){
+		Promise.resolve().then(function(){
+			throw new Error("oh no");
+		}).then(null, function(err){
+			caught = err;
+		});
+	}).then(function(){
+		QUnit.ok(true, "Even though a Promise rejected we still get a " +
+				 "resolved canWait promise");
+		QUnit.ok(!!caught, "Called the Promise errback");
+		QUnit.equal(caught.message, "oh no", "Correct error object");
 	}).then(QUnit.start);
 
 	QUnit.stop();

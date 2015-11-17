@@ -1,5 +1,10 @@
 var canWait = require("can-wait");
 var QUnit = require("steal-qunit");
+var g = typeof WorkerGlobalScope !== "undefined" && (self instanceof WorkerGlobalScope)
+	? self
+	: typeof process !== "undefined" && {}.toString.call(process) === "[object process]"
+	? global
+	: window;
 
 QUnit.module("setTimeout and XHR");
 
@@ -197,6 +202,28 @@ QUnit.test("Throwing in a Promise chain is returned", function(){
 				 "resolved canWait promise");
 		QUnit.ok(!!caught, "Called the Promise errback");
 		QUnit.equal(caught.message, "oh no", "Correct error object");
+	}).then(QUnit.start);
+
+	QUnit.stop();
+});
+
+QUnit.module("canWait.data");
+
+QUnit.test("Calling canWait.data returns data in the Promise", function(){
+
+	canWait(function(){
+		setTimeout(function(){
+			requestAnimationFrame(function(){
+				g.canWait.data(new Promise(function(resolve){
+					setTimeout(function(){
+						resolve({ foo: "bar" });
+					}, 27);
+				}));
+			});
+		}, 50);
+	}).then(function(responses){
+		QUnit.equal(responses.length, 1, "There was one data pushed");
+		QUnit.equal(responses[0].foo, "bar", "got correct response object");
 	}).then(QUnit.start);
 
 	QUnit.stop();

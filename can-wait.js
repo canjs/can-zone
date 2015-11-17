@@ -26,6 +26,17 @@ var waitWithinRequest = g.canWait = function(fn, catchErrors){
 	};
 };
 
+waitWithinRequest.data = function(dataOrPromise){
+	var request = waitWithinRequest.currentRequest;
+	var save = function(data){
+		request.responses.push(data);
+	};
+	if(dataOrPromise){
+		return dataOrPromise.then(save);
+	}
+	save(dataOrPromise);
+};
+
 function Override(obj, name, fn) {
 	this.old = obj[name];
 	this.obj = obj;
@@ -146,6 +157,8 @@ Request.prototype.end = function(){
 	var dfd = this.deferred;
 	if(this.errors.length) {
 		dfd.reject(this.errors);
+	} else if(this.responses.length) {
+		dfd.resolve(this.responses);
 	} else {
 		dfd.resolve();
 	}

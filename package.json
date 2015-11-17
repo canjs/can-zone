@@ -4,7 +4,9 @@
   "description": "Asynchronous render for all frameworks",
   "main": "can-wait.js",
   "scripts": {
-    "test": "testee test/test.html --browsers firefox --reporter Spec"
+    "test:node": "mocha test/test.js",
+    "test:browser": "testee test/test.html --browsers firefox --reporter Spec",
+    "test": "npm run test:node && npm run test:browser"
   },
   "repository": {
     "type": "git",
@@ -24,13 +26,26 @@
   },
   "homepage": "https://github.com/canjs/can-wait#readme",
   "devDependencies": {
+    "chai": "^3.4.1",
+    "mocha": "^2.3.4",
     "steal": "^0.12.4",
-    "steal-qunit": "^0.1.1",
+    "steal-mocha": "0.0.3",
     "testee": "^0.2.2"
   },
   "system": {
     "npmDependencies": [
-      "steal-qunit"
-    ]
+      "steal-mocha",
+      "mocha",
+	  "chai"
+    ],
+	"map": {
+      "./assert": "chai/chai"
+    },
+    "meta": {
+      "chai/chai": {
+        "format": "global",
+        "exports": "chai.assert"
+      }
+    }
   }
 }

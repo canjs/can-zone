@@ -71,7 +71,32 @@ var allOverrides = [
 		});
 	},
 
-	function(request){
+	function(request) {
+		return new Override(Promise.prototype, "then", function(then){
+			return function(onFulfilled, onRejected){
+				var fn;
+				var callback = waitWithinRequest(function(){
+					if(fn) {
+						return fn.apply(this, arguments);
+					}
+				}, false);
+
+				var callWith = function(cb){
+					return function(){
+						fn = cb;
+						return callback.apply(this, arguments);
+					};
+				};
+
+				return then.call(this, callWith(onFulfilled),
+								 callWith(onRejected));
+			};
+		});
+	}
+];
+
+if(typeof XMLHttpRequest !== "undefined") {
+	allOverrides.push(function(request){
 		return new Override(XMLHttpRequest.prototype, "send", function(send){
 			return function(){
 				var onreadystatechange = this.onreadystatechange,
@@ -101,31 +126,9 @@ var allOverrides = [
 				return send.apply(this, arguments);
 			};
 		});
-	},
+	});
+}
 
-	function(request) {
-		return new Override(Promise.prototype, "then", function(then){
-			return function(onFulfilled, onRejected){
-				var fn;
-				var callback = waitWithinRequest(function(){
-					if(fn) {
-						return fn.apply(this, arguments);
-					}
-				}, false);
-
-				var callWith = function(cb){
-					return function(){
-						fn = cb;
-						return callback.apply(this, arguments);
-					};
-				};
-
-				return then.call(this, callWith(onFulfilled),
-								 callWith(onRejected));
-			};
-		});
-	}
-];
 
 function Request() {
 	this.deferred = new Deferred();

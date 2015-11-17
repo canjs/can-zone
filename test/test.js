@@ -31,6 +31,8 @@ describe("setTimeout and XHR", function(){
 
 	if(isBrowser) {
 		it("all results returned", function(done){
+			this.timeout(10000);
+
 			var results = [];
 			canWait(function(){
 				setTimeout(function(){
@@ -55,6 +57,8 @@ describe("setTimeout and XHR", function(){
 		});
 
 		it("XHR errors are returned", function(done){
+			this.timeout(10000);
+
 			var waits = 0;
 
 			canWait(function(){

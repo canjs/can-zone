@@ -92,12 +92,13 @@ var allOverrides = [
 								 callWith(onRejected));
 			};
 		});
-	}
-];
+	},
 
-if(typeof XMLHttpRequest !== "undefined") {
-	allOverrides.push(function(request){
-		return new Override(XMLHttpRequest.prototype, "send", function(send){
+	function(request){
+		return typeof XMLHttpRequest === "undefined" ?
+			undefined :
+
+		new Override(XMLHttpRequest.prototype, "send", function(send){
 			return function(){
 				var onreadystatechange = this.onreadystatechange,
 					onload = this.onload,
@@ -126,8 +127,8 @@ if(typeof XMLHttpRequest !== "undefined") {
 				return send.apply(this, arguments);
 			};
 		});
-	});
-}
+	}
+];
 
 
 function Request() {
@@ -135,10 +136,12 @@ function Request() {
 	this.waits = 0;
 	this.errors = [];
 	this.responses = [];
-	var o = this.overrides = [];
+	var o = this.overrides = [], def;
 
 	for(var i = 0, len = allOverrides.length; i < len; i++) {
-		o.push(allOverrides[i](this));
+		def = allOverrides[i](this);
+		if(def)
+			o.push(def);
 	}
 }
 

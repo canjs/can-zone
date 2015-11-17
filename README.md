@@ -14,30 +14,28 @@ npm install can-wait --save
 ## Usage
 
 ```js
-var canWait = require("can-wait");
+var wait = require("can-wait");
 
-var results = [];
-
-canWait(function(){
+wait(function(){
 
 	setTimeout(function(){
-		results.push("a");
+		canWait.data("a");
 	}, 29);
 
 	setTimeout(function(){
-		results.push("b");
+		canWait.data("b");
 	}, 13);
 
 	var xhr = new XMLHttpRequest();
 	xhr.open("GET", "http://chat.donejs.com/api/messages");
 	xhr.onload = function(){
-		results.push("c");
+		canWait.data("c");
 	};
 	xhr.send();
 
 }).then(
-	function success() {
-		// results -> ["b", "a", "c"]
+	function success(responses) {
+		// responses -> ["b", "a", "c"]
 	},
 	function error(errors) {
 		// errors -> [err, err, err]
@@ -60,6 +58,58 @@ For can-wait to work we have to override various task-creating functionality, th
 
 * requestAnimationFrame
 * Promise
+
+## API
+
+In Node there are various async methods that do not fall into the most common macrotasks, but still might need to be tracked. To accomodate this we expose a global `canWait` function that can be used to wait on the outcome of an asynchronous request.
+
+```js
+var fs = require("fs");
+
+fs.readFile("some/file", canWait(function(err, file){
+	// We've waited
+}));
+```
+
+### canWait
+
+**canWait** is a function that creates a callback that can be used with any async functionality. Calling canWait registers a wait with the currently running request and returns a function that, when called, will decrement the wait count.
+
+### canWait.data
+
+You might want to get data back from can-wait, for example if you are using the library to track asynchronous rendering requests. Calling **canWait.data** with data or a Promise will register that data within the current request.
+
+```js
+var xhr = new XMLHttpRequest();
+xhr.open("GET", "http://example.com");
+xhr.onload = function(){
+	canWait.data(xhr.responseText);
+};
+xhr.send();
+```
+
+Or with a [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise):
+
+```js
+var promise = $.ajax({
+	url: "http://example.com"
+});
+
+canWait.data(promise);
+```
+
+The data you register with **canWait.data** will be returned from the Promise as an array:
+
+```js
+var wait = require("can-wait");
+
+wait(function(){
+	doSomeXHRThatCallsCanWaitData();
+})
+.then(function(responses){
+	console.log(responses); // -> [{ foo: 'bar' }]
+});
+```
 
 ## License
 

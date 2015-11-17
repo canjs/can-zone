@@ -71,8 +71,34 @@ var allOverrides = [
 		});
 	},
 
+	function(request) {
+		return new Override(Promise.prototype, "then", function(then){
+			return function(onFulfilled, onRejected){
+				var fn;
+				var callback = waitWithinRequest(function(){
+					if(fn) {
+						return fn.apply(this, arguments);
+					}
+				}, false);
+
+				var callWith = function(cb){
+					return function(){
+						fn = cb;
+						return callback.apply(this, arguments);
+					};
+				};
+
+				return then.call(this, callWith(onFulfilled),
+								 callWith(onRejected));
+			};
+		});
+	},
+
 	function(request){
-		return new Override(XMLHttpRequest.prototype, "send", function(send){
+		return typeof XMLHttpRequest === "undefined" ?
+			undefined :
+
+		new Override(XMLHttpRequest.prototype, "send", function(send){
 			return function(){
 				var onreadystatechange = this.onreadystatechange,
 					onload = this.onload,
@@ -101,41 +127,21 @@ var allOverrides = [
 				return send.apply(this, arguments);
 			};
 		});
-	},
-
-	function(request) {
-		return new Override(Promise.prototype, "then", function(then){
-			return function(onFulfilled, onRejected){
-				var fn;
-				var callback = waitWithinRequest(function(){
-					if(fn) {
-						return fn.apply(this, arguments);
-					}
-				}, false);
-
-				var callWith = function(cb){
-					return function(){
-						fn = cb;
-						return callback.apply(this, arguments);
-					};
-				};
-
-				return then.call(this, callWith(onFulfilled),
-								 callWith(onRejected));
-			};
-		});
 	}
 ];
+
 
 function Request() {
 	this.deferred = new Deferred();
 	this.waits = 0;
 	this.errors = [];
 	this.responses = [];
-	var o = this.overrides = [];
+	var o = this.overrides = [], def;
 
 	for(var i = 0, len = allOverrides.length; i < len; i++) {
-		o.push(allOverrides[i](this));
+		def = allOverrides[i](this);
+		if(def)
+			o.push(def);
 	}
 }
 

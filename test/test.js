@@ -1,5 +1,5 @@
 var assert = require("assert");
-var canWait = require("../can-wait");
+var wait = require("../can-wait");
 var isNode = typeof process !== "undefined" && {}.toString.call(process) === "[object process]";
 var g = typeof WorkerGlobalScope !== "undefined" && (self instanceof WorkerGlobalScope)
 	? self
@@ -12,16 +12,16 @@ var isBrowser = !isNode;
 describe("setTimeout", function(){
 	it("basics works", function(done){
 		var results = [];
-		canWait(function(){
+		wait(function(){
 			setTimeout(function(){
-				results.push("1-a");
+				canWait.data("1-a");
 			}, 29);
 
 			setTimeout(function(){
-				results.push("1-b");
+				canWait.data("1-b");
 			}, 13);
-		}).then(function(){
-			assert.equal(results.length, 2, "Got 2 results");
+		}).then(function(responses){
+			assert.equal(responses.length, 2, "Got 2 results");
 		}).then(done);
 
 	});
@@ -34,7 +34,7 @@ describe("setTimeout and XHR", function(){
 			this.timeout(10000);
 
 			var results = [];
-			canWait(function(){
+			wait(function(){
 				setTimeout(function(){
 					results.push("1-a");
 				}, 29);
@@ -61,7 +61,7 @@ describe("setTimeout and XHR", function(){
 
 			var waits = 0;
 
-			canWait(function(){
+			wait(function(){
 				setTimeout(function(){
 					waits++;
 				});
@@ -87,7 +87,7 @@ describe("setTimeout and XHR", function(){
 	it("Rejects when an error occurs in a setTimeout callback", function(done){
 		var waits = 0;
 
-		canWait(function(){
+		wait(function(){
 			setTimeout(function(){
 				throw new Error("ha ha");
 			}, 20);
@@ -102,7 +102,7 @@ describe("nested setTimeouts", function(){
 	beforeEach(function(done){
 		var results = this.results = [];
 
-		canWait(function(){
+		wait(function(){
 			setTimeout(function(){
 				results.push("2-a");
 
@@ -140,7 +140,7 @@ if(isBrowser) {
 		it("setTimeout with requestAnimationFrame", function(done){
 			var results = [];
 
-			canWait(function() {
+			wait(function() {
 				setTimeout(function(){
 					results.push("3-a");
 
@@ -173,7 +173,7 @@ describe("Promises", function(){
 	it("A lot of resolving and rejecting", function(done){
 		var results = [];
 
-		canWait(function(){
+		wait(function(){
 			Promise.resolve().then(function(){
 				results.push("4-a");
 
@@ -213,7 +213,7 @@ describe("Promises", function(){
 
 	it("Throwing in a Promise chain is returned", function(done){
 		var caught;
-		canWait(function(){
+		wait(function(){
 			Promise.resolve().then(function(){
 				throw new Error("oh no");
 			}).then(null, function(err){
@@ -221,7 +221,7 @@ describe("Promises", function(){
 			});
 		}).then(function(){
 			assert(true, "Even though a Promise rejected we still get a " +
-					 "resolved canWait promise");
+					 "resolved wait promise");
 			assert(!!caught, "Called the Promise errback");
 			assert.equal(caught.message, "oh no", "Correct error object");
 		}).then(done);
@@ -230,10 +230,10 @@ describe("Promises", function(){
 
 describe("canWait.data", function(){
 	it("Calling canWait.data returns data in the Promise", function(done){
-		canWait(function(){
+		wait(function(){
 			setTimeout(function(){
 				Promise.resolve().then(function(){
-					g.canWait.data(new Promise(function(resolve){
+					canWait.data(new Promise(function(resolve){
 						setTimeout(function(){
 							resolve({ foo: "bar" });
 						}, 27);

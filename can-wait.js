@@ -30,11 +30,12 @@ waitWithinRequest.data = function(dataOrPromise){
 	var request = waitWithinRequest.currentRequest;
 	var save = function(data){
 		request.responses.push(data);
+		return data;
 	};
-	if(dataOrPromise){
+	if(dataOrPromise && dataOrPromise.then){
 		return dataOrPromise.then(save);
 	}
-	save(dataOrPromise);
+	return save(dataOrPromise);
 };
 
 function Override(obj, name, fn) {

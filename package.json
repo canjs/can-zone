@@ -1,6 +1,6 @@
 {
   "name": "can-wait",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Asynchronous render for all frameworks",
   "main": "can-wait.js",
   "scripts": {

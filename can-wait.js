@@ -19,6 +19,7 @@ function Deferred(){
 
 var waitWithinRequest = g.canWait = function(fn, catchErrors){
 	var request = waitWithinRequest.currentRequest;
+	if(!request) return fn;
 	request.waits++;
 
 	return function(){
@@ -28,6 +29,7 @@ var waitWithinRequest = g.canWait = function(fn, catchErrors){
 
 waitWithinRequest.data = function(dataOrPromise){
 	var request = waitWithinRequest.currentRequest;
+	if(!request) return dataOrPromise;
 	var save = function(data){
 		request.responses.push(data);
 		return data;
@@ -161,6 +163,7 @@ Request.prototype.release = function(){
 };
 
 Request.prototype.end = function(){
+	waitWithinRequest.currentRequest = undefined;
 	var dfd = this.deferred;
 	if(this.errors.length) {
 		dfd.reject(this.errors);

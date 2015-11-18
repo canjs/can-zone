@@ -246,3 +246,21 @@ describe("canWait.data", function(){
 		}).then(done);
 	});
 });
+
+describe("outside of request lifecycle", function(){
+	it("there is no currentRequest", function(){
+		assert.equal(canWait.currentRequest, undefined,
+					 "since we are not within a request there is no " +
+						 "currentRequest");
+	});
+
+	it("calling canWait returns back the function passed", function(){
+		var fn = function(){};
+		assert.equal(canWait(fn), fn, "Same function");
+	});
+
+	it("calling canWait.data returns back the data", function(){
+		var data = {};
+		assert.equal(canWait.data(data), data, "Same data");
+	});
+});

@@ -17,7 +17,7 @@ function Deferred(){
 	});
 }
 
-var waitWithinRequest = g.canWait = function(fn, catchErrors){
+var waitWithinRequest = g.canWait = g.canWait || function(fn, catchErrors){
 	var request = waitWithinRequest.currentRequest;
 	if(!request) return fn;
 	request.waits++;
@@ -27,7 +27,7 @@ var waitWithinRequest = g.canWait = function(fn, catchErrors){
 	};
 };
 
-waitWithinRequest.data = function(dataOrPromise){
+waitWithinRequest.data = waitWithinRequest.data || function(dataOrPromise){
 	var request = waitWithinRequest.currentRequest;
 	if(!request) return dataOrPromise;
 	var save = function(data){

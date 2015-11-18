@@ -264,3 +264,22 @@ describe("outside of request lifecycle", function(){
 		assert.equal(canWait.data(data), data, "Same data");
 	});
 });
+
+describe("nested requests", function(){
+	it("calling canWait.data passes data to the correct request", function(done){
+		wait(function(){
+			wait(function(){
+				setTimeout(function(){
+					canWait.data({ hello: "world" });
+				}, 20);
+			}).then(function(responses){
+				responses.forEach(function(r){
+					canWait.data(r);
+				});
+			});
+		}).then(function(responses){
+			assert.equal(responses.length, 1, "got back a response");
+			assert.equal(responses[0].hello, "world", "correct response");
+		}).then(done, done);
+	});
+});

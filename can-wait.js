@@ -149,6 +149,8 @@ function Request() {
 }
 
 Request.prototype.trap = function(){
+	this.previousRequest = waitWithinRequest.currentRequest;
+	waitWithinRequest.currentRequest = this;
 	var o = this.overrides;
 	for(var i = 0, len = o.length; i < len; i++) {
 		o[i].trap();
@@ -160,10 +162,11 @@ Request.prototype.release = function(){
 	for(var i = 0, len = o.length; i < len; i++) {
 		o[i].release();
 	}
+	waitWithinRequest.currentRequest = this.previousRequest;
+	waitWithinRequest.previousRequest = undefined;
 };
 
 Request.prototype.end = function(){
-	waitWithinRequest.currentRequest = undefined;
 	var dfd = this.deferred;
 	if(this.errors.length) {
 		dfd.reject(this.errors);
@@ -191,7 +194,6 @@ Request.prototype.run = function(fn, ctx, args, catchErrors){
 };
 
 Request.prototype.runWithinScope = function(fn, ctx, args, catchErrors){
-	waitWithinRequest.currentRequest = this;
 	this.trap();
 
 	var res;

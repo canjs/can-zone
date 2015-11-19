@@ -40,6 +40,13 @@ waitWithinRequest.data = waitWithinRequest.data || function(dataOrPromise){
 	return save(dataOrPromise);
 };
 
+waitWithinRequest.error = waitWithinRequest.error || function(error){
+	var request = waitWithinRequest.currentRequest;
+	if(!request) return error;
+	request.errors.push(error);
+	return error;
+};
+
 function Override(obj, name, fn) {
 	this.old = obj[name];
 	this.obj = obj;

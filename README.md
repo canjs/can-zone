@@ -111,6 +111,10 @@ wait(function(){
 });
 ```
 
+### canWait.error
+
+Like **canWait.data** but pushes an error into the errors array for the current request. Most likely you can just throw an error to have it propagate, this is only useful in limited scenarios.
+
 ## License
 
 MIT

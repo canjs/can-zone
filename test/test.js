@@ -247,6 +247,19 @@ describe("canWait.data", function(){
 	});
 });
 
+describe("canWait.error", function(){
+	it("calling canWait.error adds an error to the current request", function(done){
+		wait(function(){
+			setTimeout(function(){
+				canWait.error(new Error("hey there"));
+			}, 200);
+		}).then(null, function(errors){
+			assert.equal(errors.length, 1, "there was one error");
+			assert.equal(errors[0].message, "hey there", "it was the correct error");
+		}).then(done, done);
+	});
+});
+
 describe("outside of request lifecycle", function(){
 	it("there is no currentRequest", function(){
 		assert.equal(canWait.currentRequest, undefined,
@@ -262,6 +275,11 @@ describe("outside of request lifecycle", function(){
 	it("calling canWait.data returns back the data", function(){
 		var data = {};
 		assert.equal(canWait.data(data), data, "Same data");
+	});
+
+	it("calling canWait.error returns back the error", function(){
+		var error = new Error("oh no");
+		assert.equal(canWait.error(error).message, "oh no", "Same error");
 	});
 });
 

@@ -228,6 +228,28 @@ describe("Promises", function(){
 	});
 });
 
+describe("canWait", function(){
+	it("caughtErrors=false will not try and catch errors", function(done){
+		wait(function(){
+			Promise.resolve().then(function(){
+				var caught = canWait(function(){
+					throw new Error("ahh!");
+				});
+				caught();
+			}).then(function(){
+				var notCaught = canWait(function(){
+					throw new Error("oh no");
+				}, false);
+
+				notCaught();
+			}).then(null, function(){});
+		}).then(null, function(errors){
+			assert.equal(errors.length, 1, "There was 1 error");
+			assert(!canWait.currentRequest, "There is no current request");
+		}).then(done, done);
+	});
+});
+
 describe("canWait.data", function(){
 	it("Calling canWait.data returns data in the Promise", function(done){
 		wait(function(){

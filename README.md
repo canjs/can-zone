@@ -58,6 +58,7 @@ For can-wait to work we have to override various task-creating functionality, th
 
 * requestAnimationFrame
 * Promise
+* process.nextTick
 
 ## API
 

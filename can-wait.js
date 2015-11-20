@@ -7,8 +7,6 @@ var g = typeof WorkerGlobalScope !== "undefined" && (self instanceof WorkerGloba
 // Keep a local reference since we will be overriding this later.
 var Promise = g.Promise;
 
-var has = Object.prototype.hasOwnProperty;
-
 function Deferred(){
 	var dfd = this;
 	this.promise = new Promise(function(resolve, reject){
@@ -82,7 +80,7 @@ var allOverrides = [
 	},
 
 	function(request) {
-		return new Override(Promise.prototype, "then", function(then){
+		return new Override(g.Promise.prototype, "then", function(then){
 			return function(onFulfilled, onRejected){
 				var fn;
 				var callback = waitWithinRequest(function(){
@@ -156,7 +154,7 @@ function Request() {
 }
 
 Request.prototype.trap = function(){
-	this.previousRequest = waitWithinRequest.currentRequest;
+	waitWithinRequest.previousRequest = waitWithinRequest.currentRequest;
 	waitWithinRequest.currentRequest = this;
 	var o = this.overrides;
 	for(var i = 0, len = o.length; i < len; i++) {
@@ -169,7 +167,7 @@ Request.prototype.release = function(){
 	for(var i = 0, len = o.length; i < len; i++) {
 		o[i].release();
 	}
-	waitWithinRequest.currentRequest = this.previousRequest;
+	waitWithinRequest.currentRequest = waitWithinRequest.previousRequest;
 	waitWithinRequest.previousRequest = undefined;
 };
 

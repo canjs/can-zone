@@ -7,6 +7,8 @@ var g = typeof WorkerGlobalScope !== "undefined" && (self instanceof WorkerGloba
 // Keep a local reference since we will be overriding this later.
 var Promise = g.Promise;
 
+var slice = Array.prototype.slice;
+
 function Deferred(){
 	var dfd = this;
 	this.promise = new Promise(function(resolve, reject){
@@ -135,7 +137,22 @@ var allOverrides = [
 				return send.apply(this, arguments);
 			};
 		});
+	},
+
+	function(request){
+		return typeof process === "undefined" || !process.nextTick ?
+			undefined :
+
+		new Override(process, "nextTick", function(nextTick){
+			return function(fn/*, ...args */){
+				var callback = waitWithinRequest(fn);
+				var args = slice.call(arguments, 1);
+				args.unshift(callback);
+				return nextTick.apply(process, args);
+			};
+		});
 	}
+
 ];
 
 

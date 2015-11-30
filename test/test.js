@@ -323,3 +323,18 @@ describe("nested requests", function(){
 		}).then(done, done);
 	});
 });
+
+if(isNode) {
+	describe("process.nextTick", function(){
+		it("works", function(done){
+			wait(function(){
+				process.nextTick(function(){
+					canWait.data("hello");
+				});
+			}).then(function(responses){
+				assert.equal(responses.length, 1, "there is one result");
+			})
+			.then(done, done);
+		});
+	});
+}

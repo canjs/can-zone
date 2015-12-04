@@ -14,22 +14,23 @@ npm install can-wait --save
 ## Usage
 
 ```js
-var wait = require("can-wait");
+import wait from "can-wait";
+import { waitData } from "can-wait/waitfor";
 
 wait(function(){
 
 	setTimeout(function(){
-		canWait.data("a");
+		waitData("a");
 	}, 29);
 
 	setTimeout(function(){
-		canWait.data("b");
+		waitData("b");
 	}, 13);
 
 	var xhr = new XMLHttpRequest();
 	xhr.open("GET", "http://chat.donejs.com/api/messages");
 	xhr.onload = function(){
-		canWait.data("c");
+		waitData("c");
 	};
 	xhr.send();
 
@@ -72,19 +73,34 @@ fs.readFile("some/file", canWait(function(err, file){
 }));
 ```
 
-### canWait
+### waitFor
 
-**canWait** is a function that creates a callback that can be used with any async functionality. Calling canWait registers a wait with the currently running request and returns a function that, when called, will decrement the wait count.
+**waitFor** is a function that creates a callback that can be used with any async functionality. Calling waitFor registers a wait with the currently running request and returns a function that, when called, will decrement the wait count.
 
-### canWait.data
-
-You might want to get data back from can-wait, for example if you are using the library to track asynchronous rendering requests. Calling **canWait.data** with data or a Promise will register that data within the current request.
+This is useful if there is async functionality other than what [we implement](#tasks). You might be using a library that has C++ bindings and doesn't go through the normal JavaScript async APIs.
 
 ```js
-var xhr = new XMLHttpRequest();
+import waitFor from "can-wait/waitfor";
+import asyncThing from "some-module-that-does-secret-async-stuff";
+
+asyncThing(waitFor(function(){
+	// We waited on this!
+}));
+```
+
+### waitData
+
+You might want to get data back from can-wait, for example if you are using the library to track asynchronous rendering requests. Calling **waitData** with data or a Promise will register that data within the current request.
+
+```js
+import { waitFor, waitData } from "can-wait/waitfor";
+
+// Note that waitData === waitFor.data === waitFor.waitData
+
+let xhr = new XMLHttpRequest();
 xhr.open("GET", "http://example.com");
 xhr.onload = function(){
-	canWait.data(xhr.responseText);
+	waitData(xhr.responseText);
 };
 xhr.send();
 ```
@@ -96,25 +112,40 @@ var promise = $.ajax({
 	url: "http://example.com"
 });
 
-canWait.data(promise);
+waitData(promise);
 ```
 
-The data you register with **canWait.data** will be returned from the Promise as an array:
+The data you register with **waitData** will be returned from the Promise as an array:
 
 ```js
-var wait = require("can-wait");
+import wait from "can-wait";
 
 wait(function(){
-	doSomeXHRThatCallsCanWaitData();
+	doSomeXHRThatCallsWaitData();
 })
 .then(function(responses){
 	console.log(responses); // -> [{ foo: 'bar' }]
 });
 ```
 
-### canWait.error
+### waitError
 
-Like **canWait.data** but pushes an error into the errors array for the current request. Most likely you can just throw an error to have it propagate, this is only useful in limited scenarios.
+Like **waitData** but pushes an error into the errors array for the current request. Most likely you can just throw an error to have it propagate, this is only useful in limited scenarios.
+
+```js
+import { waitError } from "can-wait/waitfor";
+import wait from "can-wait";
+
+wait(function(){
+
+	setTimeout(function(){
+		waitError(new Error("oh no"));
+	}, 100);
+
+}).then(null, function(errors){
+	errors; // -> [{message: "oh no"}]
+});
+```
 
 ## License
 

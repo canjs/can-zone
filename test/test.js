@@ -338,3 +338,7 @@ if(isNode) {
 		});
 	});
 }
+
+
+// Require other things
+require("./waitfor-cjs");

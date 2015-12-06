@@ -147,6 +147,29 @@ wait(function(){
 });
 ```
 
+### Custom overrides
+
+By default can-wait overrides all of the tasks listed in the [#tasks](Tasks) section, but you might also want to override additional globals. You can do that using the waitOptions object:
+
+#### waitOptions
+
+Additional options provided to the wait request:
+
+```js
+import wait from "can-wait";
+const Override = wait.Override;
+
+wait(fn, {
+	overrides: [
+			function(request){
+					return new Override(global, "prop", function(prop){
+							return replacement;
+					});
+			}
+	]
+});
+```
+
 ## License
 
 MIT

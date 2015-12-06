@@ -339,6 +339,29 @@ if(isNode) {
 	});
 }
 
+describe("Options", function(){
+	it("overrides work", function(done){
+		var Override = wait.Override;
+		var myFoo = {};
+
+		var waitOptions = {
+			overrides: [
+				function(){
+					return new Override(g, "FOO", function() { return myFoo; });
+				}
+			]
+		};
+
+		wait(function(){
+			setTimeout(function(){
+				assert.equal(FOO, myFoo, "Global was overwritten");
+			}, 10);
+		}, waitOptions).then(done, function(errors){
+			done(errors[0]);
+		});
+	});
+});
+
 
 // Require other things
 require("./waitfor-cjs");

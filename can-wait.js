@@ -62,6 +62,8 @@ Override.prototype.release = function(){
 	this.obj[this.name] = this.old;
 };
 
+canWait.Override = Override;
+
 var allOverrides = [
 	function(request){
 		return new Override(g, "setTimeout", function(setTimeout){
@@ -156,15 +158,18 @@ var allOverrides = [
 ];
 
 
-function Request() {
+function Request(options) {
 	this.deferred = new Deferred();
 	this.waits = 0;
 	this.errors = [];
 	this.responses = [];
 	var o = this.overrides = [], def;
 
-	for(var i = 0, len = allOverrides.length; i < len; i++) {
-		def = allOverrides[i](this);
+	var localOverrides = ((options && options.overrides)||[])
+		.concat(allOverrides);
+
+	for(var i = 0, len = localOverrides.length; i < len; i++) {
+		def = localOverrides[i](this);
 		if(def)
 			o.push(def);
 	}
@@ -234,8 +239,8 @@ Request.prototype.runWithinScope = function(fn, ctx, args, catchErrors){
 	return res;
 };
 
-function canWait(fn) {
-	var request = new Request();
+function canWait(fn, options) {
+	var request = new Request(options);
 
 	// Call the function
 	request.runWithinScope(fn);

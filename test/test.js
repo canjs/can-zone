@@ -22,7 +22,9 @@ describe("setTimeout", function(){
 			}, 13);
 		}).then(function(responses){
 			assert.equal(responses.length, 2, "Got 2 results");
-		}).then(done);
+		}).then(done, function(err){
+			console.log("ERR:", err);
+		});
 	});
 
 	describe("clearTimeout", function(){

@@ -23,7 +23,35 @@ describe("setTimeout", function(){
 		}).then(function(responses){
 			assert.equal(responses.length, 2, "Got 2 results");
 		}).then(done);
+	});
 
+	describe("clearTimeout", function(){
+		it("decrements the wait count", function(done){
+			wait(function(){
+				setTimeout(function(){
+					var id = setTimeout(function(){
+						thisWillThrow();
+					}, 20000);
+
+					setTimeout(function(){
+						clearTimeout(id);
+						checkRequestIds();
+					}, 3);
+				}, 1);
+			}).then(function(){
+				assert.ok(true, "It finished");
+			}).then(done);
+
+			function checkRequestIds() {
+				var request = canWait.currentRequest;
+				var count = 0;
+				for(var p in request.ids) {
+					count++;
+				}
+
+				assert.equal(count, 0, "There are no ids outstanding");
+			}
+		});
 	});
 });
 

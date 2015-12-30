@@ -68,9 +68,28 @@ var allOverrides = [
 	function(request){
 		return new Override(g, "setTimeout", function(setTimeout){
 			return function(fn, timeout){
-				var callback = waitWithinRequest(fn);
-				return setTimeout.call(this, callback, timeout);
+				var callback = waitWithinRequest(function(){
+					delete request.ids[timeoutId];
+					return fn.apply(this, arguments);
+				});
+				var timeoutId = setTimeout.call(this, callback, timeout);
+				request.ids[timeoutId] = true;
+				return timeoutId;
 			}
+		});
+	},
+
+	function(request){
+		return new Override(g, "clearTimeout", function(clearTimeout){
+			return function(timeoutId){
+				var ids = request.ids;
+				if(ids[timeoutId]) {
+					delete ids[timeoutId];
+					request.waits--;
+
+				}
+				return clearTimeout.apply(this, arguments);
+			};
 		});
 	},
 
@@ -161,6 +180,7 @@ var allOverrides = [
 function Request(options) {
 	this.deferred = new Deferred();
 	this.waits = 0;
+	this.ids = {};
 	this.errors = [];
 	this.responses = [];
 	var o = this.overrides = [], def;

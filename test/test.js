@@ -395,3 +395,4 @@ describe("Options", function(){
 
 // Require other things
 require("./waitfor-cjs");
+require("./ignore");

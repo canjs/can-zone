@@ -147,6 +147,28 @@ wait(function(){
 });
 ```
 
+### ignore
+
+Creates a function that, when called, will not track any calls. This might be needed if you are calling code that does unusual things, like using setTimeout recursively indefinitely.
+
+```js
+import ignore from "can-wait/ignore";
+import wait from "can-wait";
+
+wait(function(){
+	function recursive(){
+		setTimeout(function(){
+			recursive();
+		}, 20000);
+	}
+
+	var fn = ignore(recursive);
+
+	// This call will not be waited on.
+	fn();
+});
+```
+
 ### Custom overrides
 
 By default can-wait overrides all of the tasks listed in the [#tasks](Tasks) section, but you might also want to override additional globals. You can do that using the waitOptions object:

@@ -1,6 +1,7 @@
+var isNode = typeof process !== "undefined" && {}.toString.call(process) === "[object process]";
 var g = typeof WorkerGlobalScope !== "undefined" && (self instanceof WorkerGlobalScope)
 	? self
-	: typeof process !== "undefined" && {}.toString.call(process) === "[object process]"
+	: isNode
 	? global
 	: window;
 
@@ -64,13 +65,41 @@ Override.prototype.release = function(){
 
 canWait.Override = Override;
 
+if(isNode) {
+	var globalTimeoutId = 1;
+}
+
 var allOverrides = [
 	function(request){
 		return new Override(g, "setTimeout", function(setTimeout){
 			return function(fn, timeout){
-				var callback = waitWithinRequest(fn);
-				return setTimeout.call(this, callback, timeout);
+				var callback = waitWithinRequest(function(){
+					delete request.ids[id];
+					return fn.apply(this, arguments);
+				});
+				var timeoutId = setTimeout.call(this, callback, timeout);
+				var id = timeoutId;
+				if(isNode) {
+					id = timeoutId.__timeoutId = globalTimeoutId++;
+				}
+				request.ids[id] = timeoutId;
+				return timeoutId;
 			}
+		});
+	},
+
+	function(request){
+		return new Override(g, "clearTimeout", function(clearTimeout){
+			return function(timeoutId){
+				var ids = request.ids;
+				var id = isNode ? timeoutId.__timeoutId : timeoutId;
+				if(ids[id]) {
+					delete ids[id];
+					request.waits--;
+
+				}
+				return clearTimeout.apply(this, arguments);
+			};
 		});
 	},
 
@@ -161,6 +190,7 @@ var allOverrides = [
 function Request(options) {
 	this.deferred = new Deferred();
 	this.waits = 0;
+	this.ids = {};
 	this.errors = [];
 	this.responses = [];
 	var o = this.overrides = [], def;

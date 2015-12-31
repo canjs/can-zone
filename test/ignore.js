@@ -27,4 +27,12 @@ describe("can-wait/ignore", function(){
 			assert.equal(responses[0], "a", "calls after the ignored function are handled");
 		}).then(done);
 	});
+
+	it("works outside of a request context", function(){
+		var fn = ignore(function(){
+			return "hello";
+		});
+
+		assert.equal(fn(), "hello", "the wrapper works");
+	});
 });

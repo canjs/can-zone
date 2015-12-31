@@ -27,7 +27,7 @@ var ignore = function(fn){
 };
 
 function canWaitPresent(){
-	return typeof canWait !== "undefined" && !!canWait.data;
+	return typeof canWait !== "undefined" && !!canWait.currentRequest;
 }
 
 module.exports = ignore;

@@ -91,6 +91,12 @@ var allOverrides = [
 	function(request){
 		return new Override(g, "clearTimeout", function(clearTimeout){
 			return function(timeoutId){
+				// If no timeoutId is passed just call the parent
+				// https://developer.mozilla.org/en-US/docs/Web/API/WindowTimers/clearTimeout#Notes
+				if(timeoutId == null) {
+					return clearTimeout.apply(this, arguments);
+				}
+
 				var ids = request.ids;
 				var id = isNode ? timeoutId.__timeoutId : timeoutId;
 				if(ids[id]) {

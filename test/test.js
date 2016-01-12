@@ -54,6 +54,18 @@ describe("setTimeout", function(){
 				assert.equal(count, 0, "There are no ids outstanding");
 			}
 		});
+
+		it("doesn't throw when passing an invalid timeoutId", function(done){
+			wait(function(){
+				setTimeout(function(){
+					assert.doesNotThrow(function(){
+						clearTimeout();
+					}, "calling clearTimeout with no id works");
+				});
+			}).then(function(){
+				assert.ok(true, "it finished");
+			}).then(done);
+		});
 	});
 });
 

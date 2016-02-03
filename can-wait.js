@@ -122,10 +122,11 @@ var allOverrides = [
 		return new Override(g.Promise.prototype, "then", function(then){
 			return function(onFulfilled, onRejected){
 				var fn;
-				var callback = waitWithinRequest(function(){
+				var callback = waitWithinRequest(function(val){
 					if(fn) {
 						return fn.apply(this, arguments);
 					}
+					return val;
 				}, false);
 
 				var callWith = function(cb){

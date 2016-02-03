@@ -268,6 +268,19 @@ describe("Promises", function(){
 			assert.equal(caught.message, "oh no", "Correct error object");
 		}).then(done);
 	});
+
+	it("Returns a value when only providing a error callback", function(done){
+		wait(function(){
+			Promise.resolve("hello").then(null, function(){
+
+			}).then(function(value){
+				canWait.data(value);
+			});
+		}).then(function(responses){
+			assert.equal(responses.length, 1, "Got ar response");
+			assert.equal(responses[0], "hello", "got the value");
+		}).then(done);
+	});
 });
 
 describe("canWait", function(){

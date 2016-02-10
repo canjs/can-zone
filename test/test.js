@@ -210,18 +210,12 @@ if(isBrowser) {
 	});
 } else {
 	describe("requestAnimationFrame", function(){
-		it("doesn't throw", function(done){
-			var raf = global.requestAnimationFrame;
-			global.requestAnimationFrame = function(){
-				console.log("hello");
-			};
-
-			var fn = function(){
-				requestAnimationFrame(function(){});
-			};
-
-			wait(fn).then(function(){
-				global.requestAnimationFrame = raf;
+		it("isn't defined", function(done){
+			wait(function(){
+				canWait.data(typeof requestAnimationFrame);
+				setTimeout(function(){});
+			}).then(function(responses){
+				assert.equal(responses[0], "undefined", "there is no rAF in node");
 				done();
 			}, function(errors){
 				done(errors);

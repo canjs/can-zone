@@ -110,7 +110,7 @@ var allOverrides = [
 	},
 
 	function(request){
-		return typeof requestAnimationFrame !== "undefined" ?
+		return typeof requestAnimationFrame === "undefined" ?
 			undefined :
 
 		new Override(g, "requestAnimationFrame", function(rAF){

@@ -110,7 +110,10 @@ var allOverrides = [
 	},
 
 	function(request){
-		return new Override(g, "requestAnimationFrame", function(rAF){
+		return typeof requestAnimationFrame !== "undefined" ?
+			undefined :
+
+		new Override(g, "requestAnimationFrame", function(rAF){
 			return function(fn){
 				var callback = waitWithinRequest(fn);
 				return rAF.call(this, callback);

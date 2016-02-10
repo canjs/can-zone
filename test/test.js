@@ -208,6 +208,26 @@ if(isBrowser) {
 		});
 
 	});
+} else {
+	describe("requestAnimationFrame", function(){
+		it("doesn't throw", function(done){
+			var raf = global.requestAnimationFrame;
+			global.requestAnimationFrame = function(){
+				console.log("hello");
+			};
+
+			var fn = function(){
+				requestAnimationFrame(function(){});
+			};
+
+			wait(fn).then(function(){
+				global.requestAnimationFrame = raf;
+				done();
+			}, function(errors){
+				done(errors);
+			});
+		});
+	});
 }
 
 describe("Promises", function(){

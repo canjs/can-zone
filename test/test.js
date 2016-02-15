@@ -124,6 +124,42 @@ describe("setTimeout and XHR", function(){
 
 			}).then(done);
 		});
+
+		describe("if event is not provided to onreadystatechange", function() {
+			var oldXMLHttpRequest;
+
+			beforeEach(function() {
+				oldXMLHttpRequest = g.XMLHttpRequest;
+
+				g.XMLHttpRequest = function() {};
+
+				g.XMLHttpRequest.prototype.open = function() {};
+
+				g.XMLHttpRequest.prototype.send = function() {
+					var xhr = this;
+
+					setTimeout(function() {
+						xhr.readyState = 4;
+						xhr.onreadystatechange();
+					}, 5);
+				};
+			});
+
+			afterEach(function() {
+				g.XMLHttpRequest = oldXMLHttpRequest;
+			});
+
+			it("works", function(done) {
+				wait(function(){
+					var xhr = new XMLHttpRequest();
+					xhr.open("GET", "http://chat.donejs.com/api/messages");
+					xhr.send();
+				}).then(function() {
+					assert(true);
+				}).then(done);
+			});
+		});
+
 	}
 
 	it("Rejects when an error occurs in a setTimeout callback", function(done){
@@ -152,7 +188,7 @@ describe("nested setTimeouts", function(){
 					results.push("2-d");
 				}, 100);
 
-			}, 4);
+			}, 5);
 
 			setTimeout(function(){
 				results.push("2-b");

@@ -154,11 +154,11 @@ var allOverrides = [
 				var onreadystatechange = this.onreadystatechange,
 					onload = this.onload,
 					onerror = this.onerror,
-					xhr = this;
+					thisXhr = this;
 
 				var request = waitWithinRequest.currentRequest;
 				var callback = waitWithinRequest(function(ev){
-					var xhr = ev.target;
+					var xhr = ev ? ev.target : thisXhr;
 					if(xhr.readyState === 4) {
 						onreadystatechange && onreadystatechange.apply(xhr, arguments);
 						if(onload && !xhr.__onloadCalled) {

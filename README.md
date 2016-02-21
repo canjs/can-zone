@@ -171,7 +171,7 @@ wait(function(){
 
 ### Custom overrides
 
-By default can-wait overrides all of the tasks listed in the [#tasks](#Tasks) section, but you might also want to override additional globals. You can do that using the waitOptions object:
+By default can-wait overrides all of the tasks listed in the [#tasks](#tasks) section, but you might also want to override additional globals. You can do that using the waitOptions object:
 
 #### waitOptions
 

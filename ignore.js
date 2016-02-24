@@ -16,11 +16,13 @@ var ignore = function(fn){
 			return fn.apply(this, arguments);
 		}
 		var request = canWait.currentRequest;
+		var Task = request.constructor.Task;
 
 		// Use the original versions
-		request.release();
+		var task = new Task(request);
+		task.release();
 		var res = fn.apply(this, arguments);
-		request.trap();
+		task.trap();
 		return res;
 	};
 

@@ -24,7 +24,7 @@ var waitWithinRequest = g.canWait = g.canWait || function(fn, catchErrors){
 	request.waits++;
 
 	return function(){
-		return request.run(fn, this, arguments, catchErrors);
+		return request.runTask(fn, this, arguments, catchErrors);
 	};
 };
 
@@ -49,18 +49,18 @@ waitWithinRequest.error = waitWithinRequest.error || function(error){
 };
 
 function Override(obj, name, fn) {
-	this.old = obj[name];
+	this.oldValue = obj[name];
 	this.obj = obj;
 	this.name = name;
-	this.fn = fn(this.old, this);
+	this.value = fn(this.oldValue, this);
 }
 
 Override.prototype.trap = function(){
-	this.obj[this.name] = this.fn;
+	this.obj[this.name] = this.value;
 };
 
 Override.prototype.release = function(){
-	this.obj[this.name] = this.old;
+	this.obj[this.name] = this.oldValue;
 };
 
 canWait.Override = Override;
@@ -196,6 +196,57 @@ var allOverrides = [
 
 ];
 
+function Task(request, fn, catchErrors, nestedTask){
+	this.request = request;
+	this.fn = fn;
+	this.catchErrors = catchErrors;
+	this.nestedTask = nestedTask;
+}
+
+Task.prototype.run = function(ctx, args){
+	var request = this.request;
+	this.trap();
+
+	var res;
+	try {
+		request.runningTask = true;
+		res = this.fn.apply(ctx, args);
+		this.release();
+	} catch(err) {
+		this.release();
+		if(this.catchErrors !== false) {
+			request.errors.push(err);
+		} else {
+			throw err;
+		}
+	}
+	// If this is a nested task (a task run synchronously then this will
+	// remain as true
+	request.runningTask = this.nestedTask;
+
+	return res;
+};
+
+Task.prototype.trap = function(){
+	if(this.nestedTask) return;
+	var request = this.request;
+	waitWithinRequest.previousRequest = waitWithinRequest.currentRequest;
+	waitWithinRequest.currentRequest = request;
+	var o = request.overrides;
+	for(var i = 0, len = o.length; i < len; i++) {
+		o[i].trap();
+	}
+};
+
+Task.prototype.release = function(){
+	if(this.nestedTask) return;
+	var o = this.request.overrides;
+	for(var i = 0, len = o.length; i < len; i++) {
+		o[i].release();
+	}
+	waitWithinRequest.currentRequest = waitWithinRequest.previousRequest;
+	waitWithinRequest.previousRequest = undefined;
+};
 
 function Request(options) {
 	this.deferred = new Deferred();
@@ -215,22 +266,22 @@ function Request(options) {
 	}
 }
 
-Request.prototype.trap = function(){
-	waitWithinRequest.previousRequest = waitWithinRequest.currentRequest;
-	waitWithinRequest.currentRequest = this;
-	var o = this.overrides;
-	for(var i = 0, len = o.length; i < len; i++) {
-		o[i].trap();
+Request.prototype.runTask = function(fn, ctx, args, catchErrors){
+	var res, error;
+	var alreadyRunning = this.runningTask;
+	var task = new Task(this, fn, catchErrors, alreadyRunning);
+	try {
+		res = task.run(ctx, args);
+	} catch(err) {
+		error = err;
 	}
-};
-
-Request.prototype.release = function(){
-	var o = this.overrides;
-	for(var i = 0, len = o.length; i < len; i++) {
-		o[i].release();
+	this.waits--;
+	if(this.waits === 0) {
+		this.end();
 	}
-	waitWithinRequest.currentRequest = waitWithinRequest.previousRequest;
-	waitWithinRequest.previousRequest = undefined;
+	if(error)
+		throw error;
+	return res;
 };
 
 Request.prototype.end = function(){
@@ -244,46 +295,14 @@ Request.prototype.end = function(){
 	}
 };
 
-Request.prototype.run = function(fn, ctx, args, catchErrors){
-	var res, error;
-	try {
-		res = this.runWithinScope(fn, ctx, args, catchErrors);
-	} catch(err) {
-		error = err;
-	}
-	this.waits--;
-	if(this.waits === 0) {
-		this.end();
-	}
-	if(error)
-		throw error;
-	return res;
-};
-
-Request.prototype.runWithinScope = function(fn, ctx, args, catchErrors){
-	this.trap();
-
-	var res;
-	try {
-		res = fn.apply(ctx, args);
-		this.release();
-	} catch(err) {
-		this.release();
-		if(catchErrors !== false) {
-			this.errors.push(err);
-		} else {
-			throw err;
-		}
-	}
-
-	return res;
-};
+Request.Task = Task;
 
 function canWait(fn, options) {
 	var request = new Request(options);
+	var task = new Task(request, fn);
 
 	// Call the function
-	request.runWithinScope(fn);
+	task.run();
 
 	return request.deferred.promise;
 }

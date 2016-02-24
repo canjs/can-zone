@@ -124,91 +124,6 @@ describe("setTimeout and XHR", function(){
 
 			}).then(done);
 		});
-
-		describe("if event is not provided to onreadystatechange", function() {
-			var oldXMLHttpRequest;
-
-			beforeEach(function() {
-				oldXMLHttpRequest = g.XMLHttpRequest;
-
-				g.XMLHttpRequest = function() {};
-
-				g.XMLHttpRequest.prototype.open = function() {};
-
-				g.XMLHttpRequest.prototype.send = function() {
-					var xhr = this;
-
-					setTimeout(function() {
-						xhr.readyState = 4;
-						xhr.onreadystatechange();
-					}, 5);
-				};
-			});
-
-			afterEach(function() {
-				g.XMLHttpRequest = oldXMLHttpRequest;
-			});
-
-			it("works", function(done) {
-				wait(function(){
-					var xhr = new XMLHttpRequest();
-					xhr.open("GET", "http://chat.donejs.com/api/messages");
-					xhr.send();
-				}).then(function() {
-					assert(true);
-				}).then(done);
-			});
-		});
-
-		describe("if onreadystatechange is called synchronously", function() {
-			var oldXMLHttpRequest;
-
-			beforeEach(function() {
-				var mySetTimeout = g.setTimeout;
-				oldXMLHttpRequest = g.XMLHttpRequest;
-
-				g.XMLHttpRequest = function() {};
-
-				g.XMLHttpRequest.prototype.open = function() {};
-
-				g.XMLHttpRequest.prototype.send = function() {
-					var xhr = this;
-					xhr.readyState = 1;
-					xhr.onreadystatechange({ target: xhr });
-
-					mySetTimeout(function(){
-						xhr.readyState = 4;
-						xhr.onreadystatechange({ target: xhr });
-					}, 4);
-				};
-			});
-
-			afterEach(function() {
-				g.XMLHttpRequest = oldXMLHttpRequest;
-			});
-
-			it("doesn't affect globals set with overrides", function(done) {
-				var options = {
-					overrides: [
-						function(){
-							return new wait.Override(g, "FOO", function(){
-								return "bar";
-							})
-						}
-					]
-				};
-
-				wait(function(){
-					var xhr = new XMLHttpRequest();
-					xhr.open("GET", "http://chat.donejs.com/api/messages");
-					xhr.send();
-
-					canWait.data(g.FOO);
-				}, options).then(function(resp) {
-					assert.equal(resp[0], "bar", "Callign synchronously did not affect global overrides");
-				}).then(done);
-			});
-		});
 	}
 
 	it("Rejects when an error occurs in a setTimeout callback", function(done){
@@ -224,6 +139,35 @@ describe("setTimeout and XHR", function(){
 		}).then(done);
 	});
 });
+
+if(isBrowser) {
+	describe("XHR", function(){
+		describe("onload", function(){
+			it("Is only called once", function(done){
+				var timesLoaded = 0;
+				wait(function(){
+					var xhr = new XMLHttpRequest();
+					xhr.open("GET", "http://chat.donejs.com/api/messages");
+					xhr.onload = function(){
+						timesLoaded++;
+						if(timesLoaded === 1) {
+							// Wait to see if it is called again.
+							setTimeout(function(){
+								assert.equal(timesLoaded, 1, "Only loaded once");
+							}, 100);
+						}
+					};
+					xhr.send();
+				})
+				.then(function(){
+					var request = canWait.currentRequest;
+					assert(!request, "there is no currentRequest");
+				})
+				.then(done);
+			});
+		});
+	});
+}
 
 describe("nested setTimeouts", function(){
 	beforeEach(function(done){

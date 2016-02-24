@@ -21,7 +21,7 @@ function Deferred(){
 var waitWithinRequest = g.canWait = g.canWait || function(fn, catchErrors){
 	var request = waitWithinRequest.currentRequest;
 	if(!request) return fn;
-	request.waits++;
+	request.addWait();
 
 	return function(){
 		return request.runTask(fn, this, arguments, catchErrors);
@@ -146,10 +146,13 @@ var allOverrides = [
 	},
 
 	function(request){
-		return typeof XMLHttpRequest === "undefined" ?
-			undefined :
+		if(typeof XMLHttpRequest === "undefined") {
+			return undefined;
+		}
 
-		new Override(XMLHttpRequest.prototype, "send", function(send){
+		var supportsOnload = ("onload" in new XMLHttpRequest());
+
+		return new Override(XMLHttpRequest.prototype, "send", function(send){
 			return function(){
 				var onreadystatechange = this.onreadystatechange,
 					onload = this.onload,
@@ -157,23 +160,34 @@ var allOverrides = [
 					thisXhr = this;
 
 				var request = waitWithinRequest.currentRequest;
-				var callback = waitWithinRequest(function(ev){
-					var xhr = ev ? ev.target : thisXhr;
-					if(xhr.readyState === 4) {
-						onreadystatechange && onreadystatechange.apply(xhr, arguments);
-						if(onload && !xhr.__onloadCalled) {
-							onload.apply(xhr, arguments);
-							xhr.__onloadCalled = true;
+				request.addWait();
+
+				if(supportsOnload) {
+					this.onload = createCallback(onload);
+					this.onerror = createCallback(onerror);
+				} else {
+					onreadystatechange = onreadystatechange || function(){};
+					var callback = createCallback(onreadystatechange);
+					this.onreadystatechange = function(ev){
+						var xhr = ev ? ev.target : thisXhr;
+
+						if(xhr.readyState === 4) {
+							return callback.apply(this, arguments);
+						} else {
+							return onreadystatechange.apply(this, arguments);
 						}
-					} else {
-						request.waits++;
-					}
-				});
-				this.onreadystatechange = callback;
-				this.onerror = function(err){
-					request.errors.push(err);
-					onerror && onerror.apply(this, arguments);
-				};
+					};
+				}
+
+				function createCallback(fn){
+					fn = fn || function(){};
+					return function(){
+						var task = new Task(request, fn);
+						var res = task.run(this, arguments);
+						request.removeWait();
+						return res;
+					};
+				}
 
 				return send.apply(this, arguments);
 			};
@@ -275,10 +289,7 @@ Request.prototype.runTask = function(fn, ctx, args, catchErrors){
 	} catch(err) {
 		error = err;
 	}
-	this.waits--;
-	if(this.waits === 0) {
-		this.end();
-	}
+	this.removeWait();
 	if(error)
 		throw error;
 	return res;
@@ -292,6 +303,17 @@ Request.prototype.end = function(){
 		dfd.resolve(this.responses);
 	} else {
 		dfd.resolve();
+	}
+};
+
+Request.prototype.addWait = function(){
+	this.waits++;
+};
+
+Request.prototype.removeWait = function(){
+	this.waits--;
+	if(this.waits === 0) {
+		this.end();
 	}
 };
 

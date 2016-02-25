@@ -15,11 +15,15 @@ var ignore = function(fn){
 		if(!canWaitPresent()) {
 			return fn.apply(this, arguments);
 		}
-		var request = canWait.currentRequest;
-		var Task = request.constructor.Task;
+		var zone = CanZone.current;
+		var Task = CanZone.Task;
 
 		// Use the original versions
-		var task = new Task(request);
+
+		// TODO
+		// This won't work any more because Tasks don't do release/trap any more.
+
+		var task = new Task(zone);
 		task.release();
 		var res = fn.apply(this, arguments);
 		task.trap();
@@ -29,7 +33,7 @@ var ignore = function(fn){
 };
 
 function canWaitPresent(){
-	return typeof canWait !== "undefined" && !!canWait.currentRequest;
+	return typeof CanZone !== "undefined" && !!CanZone.current;
 }
 
 module.exports = ignore;

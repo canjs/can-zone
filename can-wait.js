@@ -326,6 +326,10 @@ function canWait(fn, options) {
 	// Call the function
 	task.run();
 
+	if ( request.waits === 0 ) {
+		request.end();
+	}
+
 	return request.deferred.promise;
 }
 

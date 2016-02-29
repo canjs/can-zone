@@ -9,6 +9,15 @@ if(!isNode) {
 }
 var isBrowser = !isNode;
 
+describe( "can-wait", function () {
+	it( "resolves if there is nothing to wait on", function ( done ) {
+		wait(function(){}).then(function(){
+			assert( "it finished" );
+			done();
+		});
+	});
+});
+
 describe("setTimeout", function(){
 	it("basics works", function(done){
 		var results = [];

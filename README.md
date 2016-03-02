@@ -14,34 +14,28 @@ npm install can-wait --save
 ## Usage
 
 ```js
-import wait from "can-wait";
-import { waitData } from "can-wait/waitfor";
+var Zone = require("can-wait").Zone;
 
-wait(function(){
+new Zone().run(function(){
 
 	setTimeout(function(){
-		waitData("a");
+		
 	}, 29);
 
 	setTimeout(function(){
-		waitData("b");
+		
 	}, 13);
 
 	var xhr = new XMLHttpRequest();
 	xhr.open("GET", "http://chat.donejs.com/api/messages");
 	xhr.onload = function(){
-		waitData("c");
+		
 	};
 	xhr.send();
 
-}).then(
-	function success(responses) {
-		// responses -> ["b", "a", "c"]
-	},
-	function error(errors) {
-		// errors -> [err, err, err]
-	}
-);
+}).then(function(){
+	// All done!
+});
 ```
 
 ## Tasks
@@ -63,134 +57,164 @@ For can-wait to work we have to override various task-creating functionality, th
 
 ## API
 
-In Node there are various async methods that do not fall into the most common macrotasks, but still might need to be tracked. To accomodate this we expose a global `canWait` function that can be used to wait on the outcome of an asynchronous request.
+In Node there are various async methods that do not fall into the most common macrotasks, but still might need to be tracked. To accomodate this we expose a global `Zone.waitFor` function that can be used to wait on the outcome of an asynchronous request.
 
 ```js
+require("can-wait");
 var fs = require("fs");
 
-fs.readFile("some/file", canWait(function(err, file){
+fs.readFile("some/file", Zone.waitFor(function(err, file){
 	// We've waited
 }));
 ```
 
-### waitFor
+### Zone.current
 
-**waitFor** is a function that creates a callback that can be used with any async functionality. Calling waitFor registers a wait with the currently running request and returns a function that, when called, will decrement the wait count.
+Represents the currently running zone. If the code using **Zone.current** is not running within a zone the value will be undefined.
+
+```js
+var Zone = require("can-wait").Zone;
+
+var myZone = new Zone();
+
+myZone.run(function(){
+
+	Zone.current === myZone;
+
+});
+```
+
+### Zone.waitFor
+
+**Zone.waitFor** is a function that creates a callback that can be used with any async functionality. Calling Zone.waitFor registers a wait with the currently running request and returns a function that, when called, will decrement the wait count.
 
 This is useful if there is async functionality other than what [we implement](#tasks). You might be using a library that has C++ bindings and doesn't go through the normal JavaScript async APIs.
 
 ```js
-import waitFor from "can-wait/waitfor";
+import "can-wait";
 import asyncThing from "some-module-that-does-secret-async-stuff";
 
-asyncThing(waitFor(function(){
+asyncThing(Zone.waitFor(function(){
 	// We waited on this!
 }));
 ```
 
-### waitData
+### Zone.prototype.data
 
-You might want to get data back from can-wait, for example if you are using the library to track asynchronous rendering requests. Calling **waitData** with data or a Promise will register that data within the current request.
+You might want to get data back from can-wait, for example if you are using the library to track asynchronous rendering requests. Each zone contains a **data** object which can be used to store artibitrary values.
 
 ```js
-import { waitFor, waitData } from "can-wait/waitfor";
-
-// Note that waitData === waitFor.data === waitFor.waitData
+import from "can-wait";
 
 let xhr = new XMLHttpRequest();
 xhr.open("GET", "http://example.com");
 xhr.onload = function(){
-	waitData(xhr.responseText);
+	// Save this data for later
+	Zone.current.data.xhr = xhr.responseText;
 };
 xhr.send();
 ```
 
-Or with a [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise):
+### Zone.error
+
+Allows you to add an error to the currently running zone.
 
 ```js
-var promise = $.ajax({
-	url: "http://example.com"
-});
+var Zone = require("can-wait").Zone;
 
-waitData(promise);
-```
-
-The data you register with **waitData** will be returned from the Promise as an array:
-
-```js
-import wait from "can-wait";
-
-wait(function(){
-	doSomeXHRThatCallsWaitData();
-})
-.then(function(responses){
-	console.log(responses); // -> [{ foo: 'bar' }]
-});
-```
-
-### waitError
-
-Like **waitData** but pushes an error into the errors array for the current request. Most likely you can just throw an error to have it propagate, this is only useful in limited scenarios.
-
-```js
-import { waitError } from "can-wait/waitfor";
-import wait from "can-wait";
-
-wait(function(){
+new Zone().run(function(){
 
 	setTimeout(function(){
-		waitError(new Error("oh no"));
+		Zone.error(new Error("oh no"));
 	}, 100);
 
-}).then(null, function(errors){
-	errors; // -> [{message: "oh no"}]
+}).then(null, function(error){
+	error; // -> {message: "oh no"}
 });
 ```
 
-### ignore
+### Zone.ignore
 
 Creates a function that, when called, will not track any calls. This might be needed if you are calling code that does unusual things, like using setTimeout recursively indefinitely.
 
 ```js
-import ignore from "can-wait/ignore";
-import wait from "can-wait";
+var Zone = require("can-wait").Zone;
 
-wait(function(){
+new Zone().run(function(){
 	function recursive(){
 		setTimeout(function(){
 			recursive();
 		}, 20000);
 	}
 
-	var fn = ignore(recursive);
+	var fn = Zone.ignore(recursive);
 
 	// This call will not be waited on.
 	fn();
 });
 ```
 
-### Custom overrides
+### ZoneSpec
 
-By default can-wait overrides all of the tasks listed in the [#tasks](#tasks) section, but you might also want to override additional globals. You can do that using the waitOptions object:
-
-#### waitOptions
-
-Additional options provided to the wait request:
+Each zone you create takes a **ZoneSpec** that defines behaviors that will be added to the zone. A common use case is to provide globals that you want to add within the zone. Common globals such as **document**, **window**, and **location** can be placed directly on the zoneSpec, all others within the **globals** object.
 
 ```js
-import wait from "can-wait";
-const Override = wait.Override;
+var Zone = require("can-wait").Zone;
 
-wait(fn, {
-	overrides: [
-			function(request){
-					return new Override(global, "prop", function(prop){
-							return replacement;
-					});
-			}
-	]
+var zone = new Zone({
+	document: document,
+	globals: {
+		foo: "bar"
+	}
 });
 ```
+
+The ZoneSpec can be provided as an object (like above) or a function that returns a ZoneSpec:
+
+```js
+var Zone = require("can-wait").Zone;
+
+var zone = new Zone(function(){
+	var foo = "bar";
+	return {
+		beforeTask: function(){
+			global.foo = foo;
+		}
+	}
+});
+```
+
+**Plugins** provide a way to inherit behavior defined in other ZoneSpecs. Here's a plugin that changes the title of your page randomly.
+
+```js
+var titleZone = function(){
+	return {
+		beforeTask: function(){
+			document.title = Math.random() + " huzzah!";
+		}
+	}
+};
+
+var zone = new Zone({
+	plugins: [titleZone]
+});
+```
+
+Since plugins are also defined with ZoneSpecs (or functions that return ZoneSpecs) this means you can have plugins that use plugins, that use plugins... We hope that there will be developed "bundles" of plugins that provide robust behaviors.
+
+The ZoneSpec defines the following hooks:
+
+#### created
+
+Called when the zone is first created, after all ZoneSpecs have been parsed. this is useful if you need to do setup behavior that covers the entire zone lifecycle.
+
+#### beforeTask
+
+Called before each Task is called.
+
+#### afterTask
+
+#### ended
 
 ## License
 

@@ -1,7 +1,7 @@
 var assert = require("assert");
 var env = require("../lib/env");
 var g = env.global;
-var Zone = require("../lib/zone").Zone;
+var Zone = require("../lib/zone");
 var xhrZone = require("../xhr");
 
 if(env.isNode) {

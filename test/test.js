@@ -1,6 +1,5 @@
 var assert = require("assert");
-var wait = require("../lib/zone");
-var Zone = wait.Zone;
+var Zone = require("../lib/zone");
 var env = require("../lib/env");
 
 var isNode = env.isNode;
@@ -113,7 +112,7 @@ describe("new Zone", function(){
 describe("setTimeout", function(){
 	it("basics works", function(done){
 		var results = [];
-		wait(function(){
+		new Zone().run(function(){
 			setTimeout(function(){
 				var data = Zone.current.data;
 				if(!data.timeout) data.timeout = [];
@@ -134,7 +133,7 @@ describe("setTimeout", function(){
 
 	describe("clearTimeout", function(){
 		it("decrements the wait count", function(done){
-			wait(function(){
+			new Zone().run(function(){
 				setTimeout(function(){
 					var id = setTimeout(function(){
 						thisWillThrow();
@@ -161,7 +160,7 @@ describe("setTimeout", function(){
 		});
 
 		it("doesn't throw when passing an invalid timeoutId", function(done){
-			wait(function(){
+			new Zone().run(function(){
 				setTimeout(function(){
 					assert.doesNotThrow(function(){
 						clearTimeout();
@@ -181,7 +180,7 @@ describe("setTimeout and XHR", function(){
 			this.timeout(10000);
 
 			var results = [];
-			wait(function(){
+			new Zone().run(function(){
 				setTimeout(function(){
 					results.push("1-a");
 				}, 29);
@@ -207,7 +206,7 @@ describe("setTimeout and XHR", function(){
 	it("Rejects when an error occurs in a setTimeout callback", function(done){
 		var waits = 0;
 
-		wait(function(){
+		new Zone().run(function(){
 			setTimeout(function(){
 				throw new Error("ha ha");
 			}, 20);
@@ -224,7 +223,7 @@ if(isBrowser) {
 		describe("onload", function(){
 			it("Is only called once", function(done){
 				var timesLoaded = 0;
-				wait(function(){
+				new Zone().run(function(){
 					var xhr = new XMLHttpRequest();
 					xhr.open("GET", "http://chat.donejs.com/api/messages");
 					xhr.onload = function(){
@@ -252,7 +251,7 @@ describe("nested setTimeouts", function(){
 	beforeEach(function(done){
 		var results = this.results = [];
 
-		wait(function(){
+		new Zone().run(function(){
 			setTimeout(function(){
 				results.push("2-a");
 
@@ -292,7 +291,7 @@ if(isBrowser) {
 		it("setTimeout with requestAnimationFrame", function(done){
 			var results = [];
 
-			wait(function() {
+			new Zone().run(function() {
 				setTimeout(function(){
 					results.push("3-a");
 
@@ -321,7 +320,7 @@ if(isBrowser) {
 } else {
 	describe("requestAnimationFrame", function(){
 		it("isn't defined", function(done){
-			wait(function(){
+			new Zone().run(function(){
 				var data = Zone.current.data;
 				data.rAF = typeof requestAnimationFrame;
 				setTimeout(function(){});
@@ -338,7 +337,7 @@ describe("Promises", function(){
 	it("A lot of resolving and rejecting", function(done){
 		var results = [];
 
-		wait(function(){
+		new Zone().run(function(){
 			Promise.resolve().then(function(){
 				results.push("4-a");
 
@@ -378,7 +377,7 @@ describe("Promises", function(){
 
 	it("Throwing in a Promise chain is returned", function(done){
 		var caught;
-		wait(function(){
+		new Zone().run(function(){
 			Promise.resolve().then(function(){
 				throw new Error("oh no");
 			}).then(null, function(err){
@@ -393,7 +392,7 @@ describe("Promises", function(){
 	});
 
 	it("Returns a value when only providing a error callback", function(done){
-		wait(function(){
+		new Zone().run(function(){
 			Promise.resolve("hello").then(null, function(){
 
 			}).then(function(value){
@@ -407,7 +406,7 @@ describe("Promises", function(){
 
 describe("Zone.waitFor", function(){
 	it("caughtErrors=false will not try and catch errors", function(done){
-		wait(function(){
+		new Zone().run(function(){
 			Promise.resolve().then(function(){
 				var caught = Zone.waitFor(function(){
 					throw new Error("ahh!");
@@ -432,7 +431,7 @@ describe("Zone.waitFor", function(){
 
 describe("Zone.error", function(){
 	it("calling canWait.error adds an error to the current request", function(done){
-		wait(function(){
+		new Zone().run(function(){
 			setTimeout(function(){
 				Zone.error(new Error("hey there"));
 			}, 200);
@@ -484,7 +483,7 @@ describe("Nested zones", function(){
 if(isNode) {
 	describe("process.nextTick", function(){
 		it("works", function(done){
-			wait(function(){
+			new Zone().run(function(){
 				process.nextTick(function(){
 					Zone.current.data.hello = "world";
 				});

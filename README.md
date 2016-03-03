@@ -14,7 +14,7 @@ npm install can-wait --save
 ## Usage
 
 ```js
-var Zone = require("can-wait").Zone;
+var Zone = require("can-wait");
 
 new Zone().run(function(){
 
@@ -60,7 +60,7 @@ For can-wait to work we have to override various task-creating functionality, th
 In Node there are various async methods that do not fall into the most common macrotasks, but still might need to be tracked. To accomodate this we expose a global `Zone.waitFor` function that can be used to wait on the outcome of an asynchronous request.
 
 ```js
-require("can-wait");
+var Zone = require("can-wait");
 var fs = require("fs");
 
 fs.readFile("some/file", Zone.waitFor(function(err, file){
@@ -73,7 +73,7 @@ fs.readFile("some/file", Zone.waitFor(function(err, file){
 Represents the currently running zone. If the code using **Zone.current** is not running within a zone the value will be undefined.
 
 ```js
-var Zone = require("can-wait").Zone;
+var Zone = require("can-wait");
 
 var myZone = new Zone();
 
@@ -91,8 +91,8 @@ myZone.run(function(){
 This is useful if there is async functionality other than what [we implement](#tasks). You might be using a library that has C++ bindings and doesn't go through the normal JavaScript async APIs.
 
 ```js
-import "can-wait";
-import asyncThing from "some-module-that-does-secret-async-stuff";
+var Zone = require("can-wait");
+var asyncThing = require("some-module-that-does-secret-async-stuff");
 
 asyncThing(Zone.waitFor(function(){
 	// We waited on this!
@@ -104,9 +104,9 @@ asyncThing(Zone.waitFor(function(){
 You might want to get data back from can-wait, for example if you are using the library to track asynchronous rendering requests. Each zone contains a **data** object which can be used to store artibitrary values.
 
 ```js
-import from "can-wait";
+var Zone = require("can-wait");
 
-let xhr = new XMLHttpRequest();
+var xhr = new XMLHttpRequest();
 xhr.open("GET", "http://example.com");
 xhr.onload = function(){
 	// Save this data for later
@@ -120,7 +120,7 @@ xhr.send();
 Allows you to add an error to the currently running zone.
 
 ```js
-var Zone = require("can-wait").Zone;
+var Zone = require("can-wait");
 
 new Zone().run(function(){
 
@@ -138,7 +138,7 @@ new Zone().run(function(){
 Creates a function that, when called, will not track any calls. This might be needed if you are calling code that does unusual things, like using setTimeout recursively indefinitely.
 
 ```js
-var Zone = require("can-wait").Zone;
+var Zone = require("can-wait");
 
 new Zone().run(function(){
 	function recursive(){
@@ -159,7 +159,7 @@ new Zone().run(function(){
 Each zone you create takes a **ZoneSpec** that defines behaviors that will be added to the zone. A common use case is to provide globals that you want to add within the zone. Common globals such as **document**, **window**, and **location** can be placed directly on the zoneSpec, all others within the **globals** object.
 
 ```js
-var Zone = require("can-wait").Zone;
+var Zone = require("can-wait");
 
 var zone = new Zone({
 	document: document,
@@ -172,7 +172,7 @@ var zone = new Zone({
 The ZoneSpec can be provided as an object (like above) or a function that returns a ZoneSpec:
 
 ```js
-var Zone = require("can-wait").Zone;
+var Zone = require("can-wait");
 
 var zone = new Zone(function(){
 	var foo = "bar";
@@ -210,11 +210,38 @@ Called when the zone is first created, after all ZoneSpecs have been parsed. thi
 
 #### beforeTask
 
-Called before each Task is called.
+Called before each Task is called. Use this to override any globals you want to exist during the execution of the task:
+
+```js
+new Zone({
+	beforeTask: function(){
+		window.setTimeout = mySpecialSetTimeout;
+	}
+});
+```
 
 #### afterTask
 
+Called after each Task is complete. Use this to restore state that was replaced in **beforTask**:
+
+```js
+var oldSetTimeout;
+
+new Zone({
+	beforeTask: function(){
+		oldSetTimeout = window.setTimeout;
+		window.setTimeout = mySpecialSetTimeout;
+	},
+	afterTask: function(){
+		window.setTimeout = oldSetTimeout;
+	}
+});
+```
+
+
 #### ended
+
+Called when the Zone has ended and is about to exit (it's Promise will resolve).
 
 ## License
 

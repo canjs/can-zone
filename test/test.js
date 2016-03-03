@@ -1,36 +1,131 @@
 var assert = require("assert");
-var wait = require("../can-wait");
-var isNode = typeof process !== "undefined" && {}.toString.call(process) === "[object process]";
-var g = typeof WorkerGlobalScope !== "undefined" && (self instanceof WorkerGlobalScope)
-	? self
-	: isNode ? global : window;
+var Zone = require("../lib/zone");
+var env = require("../lib/env");
+
+var isNode = env.isNode;
+
 if(!isNode) {
 	require("steal-mocha");
 }
 var isBrowser = !isNode;
 
-describe( "can-wait", function () {
-	it( "resolves if there is nothing to wait on", function ( done ) {
-		wait(function(){}).then(function(){
-			assert( "it finished" );
-			done();
+describe("new Zone", function(){
+	it("Provides hooks to before and after tasks run", function(done){
+		var count = 0;
+		var zone = new Zone({
+			beforeTask: function(){
+				count++;
+			},
+			afterTask: function(){
+				count++;
+			}
 		});
+
+		zone.run(function(){}).then(function(){
+			assert.equal(count, 2, "beforeTask and afterTask were run");
+		}).then(done);
+	});
+
+	it("Can provide a function to define the hooks", function(done){
+		var zone = new Zone(function(data){
+			return {
+				beforeTask: function(){
+					data.foo = "bar";
+				},
+				afterTask: function(){
+					data.baz = "qux";
+				}
+			};
+		});
+
+		zone.run(function(){}).then(function(data){
+			assert.equal(data.foo, "bar", "beforeTask data was added");
+			assert.equal(data.baz, "qux", "afterTask data was added");
+		}).then(done);
+	});
+
+	it("Can pass in plugins that provide the same API", function(done){
+		var count = 0;
+
+		var barZone = function(){
+			return {
+				globals: {
+					foo: "bar"
+				},
+				afterTask: function(){
+					count++;
+				}
+			};
+		};
+
+		var fooZone = {
+			beforeTask: function(){
+				count++;
+			},
+			plugins: [barZone]
+		};
+
+		var zone = new Zone({
+			beforeTask: function(){
+				count++;
+			},
+			plugins: [fooZone]
+		});
+
+		zone.run(function(){
+			// This makes sure the globals defined in barZone are set up
+			if(typeof foo === "string" && foo === "bar") {
+				count++;
+			}
+		}).then(function(){
+			assert.equal(count, 4, "Deeply nested plugins works");
+		}).then(done);
+	});
+
+	if(isNode) {
+		it("Allows you to put common globals directly on spec object",
+		   function(done){
+			var myDoc = { foo: "bar" };
+			new Zone({
+				document: myDoc
+			}).run(function(){
+				assert.equal(document, myDoc, "Correct document");
+			}).then(function(){
+				done();
+			}, done);
+		});
+	}
+
+	it("Allows you to define globals with dot operator", function(done){
+		new Zone({
+			globals: {
+				"foo.bar": "baz"
+			}
+		}).run(function(){
+			assert.equal(foo.bar, "baz", "global was set");
+		}).then(function(data){
+			done();
+		}, done);
 	});
 });
 
 describe("setTimeout", function(){
 	it("basics works", function(done){
 		var results = [];
-		wait(function(){
+		new Zone().run(function(){
 			setTimeout(function(){
-				canWait.data("1-a");
+				var data = Zone.current.data;
+				if(!data.timeout) data.timeout = [];
+				data.timeout.push("1-a");
 			}, 29);
 
 			setTimeout(function(){
-				canWait.data("1-b");
+				var data = Zone.current.data;
+				if(!data.timeout) data.timeout = [];
+				data.timeout.push("1-b");
 			}, 13);
-		}).then(function(responses){
-			assert.equal(responses.length, 2, "Got 2 results");
+		}).then(function(data){
+			assert.equal(data.timeout.length, 2, "Got 2 results");
 		}).then(done, function(err){
 			done(err);
 		});
@@ -38,7 +133,7 @@ describe("setTimeout", function(){
 
 	describe("clearTimeout", function(){
 		it("decrements the wait count", function(done){
-			wait(function(){
+			new Zone().run(function(){
 				setTimeout(function(){
 					var id = setTimeout(function(){
 						thisWillThrow();
@@ -54,9 +149,9 @@ describe("setTimeout", function(){
 			}).then(done);
 
 			function checkRequestIds() {
-				var request = canWait.currentRequest;
+				var zone = Zone.current;
 				var count = 0;
-				for(var p in request.ids) {
+				for(var p in zone.ids) {
 					count++;
 				}
 
@@ -65,7 +160,7 @@ describe("setTimeout", function(){
 		});
 
 		it("doesn't throw when passing an invalid timeoutId", function(done){
-			wait(function(){
+			new Zone().run(function(){
 				setTimeout(function(){
 					assert.doesNotThrow(function(){
 						clearTimeout();
@@ -85,7 +180,7 @@ describe("setTimeout and XHR", function(){
 			this.timeout(10000);
 
 			var results = [];
-			wait(function(){
+			new Zone().run(function(){
 				setTimeout(function(){
 					results.push("1-a");
 				}, 29);
@@ -106,43 +201,17 @@ describe("setTimeout and XHR", function(){
 
 			}).then(done);
 		});
-
-		it("XHR errors are returned", function(done){
-			this.timeout(10000);
-
-			var waits = 0;
-
-			wait(function(){
-				setTimeout(function(){
-					waits++;
-				});
-
-				var xhr = new XMLHttpRequest();
-				xhr.open("GET", "http://chat.donejs.com/api/messages");
-				xhr.onreadystatechange = function(){
-					if(xhr.readyState === 4) {
-						waits++;
-					}
-				};
-				xhr.send();
-				xhr.onerror(new Error("oh no"));
-			}).then(null, function(errors){
-
-				assert.equal(waits, 2, "Waited for the setTimeout and the xhr");
-				assert.equal(errors.length, 1, "There was one error with this request");
-
-			}).then(done);
-		});
 	}
 
 	it("Rejects when an error occurs in a setTimeout callback", function(done){
 		var waits = 0;
 
-		wait(function(){
+		new Zone().run(function(){
 			setTimeout(function(){
 				throw new Error("ha ha");
 			}, 20);
-		}).then(null, function(errors){
+		}).then(null, function(error){
+			var errors = error.errors;
 			assert.equal(errors.length, 1, "There was one error");
 			assert.equal(errors[0].message, "ha ha", "Same error object");
 		}).then(done);
@@ -154,7 +223,7 @@ if(isBrowser) {
 		describe("onload", function(){
 			it("Is only called once", function(done){
 				var timesLoaded = 0;
-				wait(function(){
+				new Zone().run(function(){
 					var xhr = new XMLHttpRequest();
 					xhr.open("GET", "http://chat.donejs.com/api/messages");
 					xhr.onload = function(){
@@ -169,8 +238,8 @@ if(isBrowser) {
 					xhr.send();
 				})
 				.then(function(){
-					var request = canWait.currentRequest;
-					assert(!request, "there is no currentRequest");
+					var zone = Zone.current;
+					assert(!zone, "there is no current Zone");
 				})
 				.then(done);
 			});
@@ -182,7 +251,7 @@ describe("nested setTimeouts", function(){
 	beforeEach(function(done){
 		var results = this.results = [];
 
-		wait(function(){
+		new Zone().run(function(){
 			setTimeout(function(){
 				results.push("2-a");
 
@@ -199,7 +268,9 @@ describe("nested setTimeouts", function(){
 			setTimeout(function(){
 				results.push("2-c");
 			});
-		}).then(done);
+		}).then(function(){
+			done();
+		});
 	})
 
 
@@ -220,7 +291,7 @@ if(isBrowser) {
 		it("setTimeout with requestAnimationFrame", function(done){
 			var results = [];
 
-			wait(function() {
+			new Zone().run(function() {
 				setTimeout(function(){
 					results.push("3-a");
 
@@ -249,15 +320,14 @@ if(isBrowser) {
 } else {
 	describe("requestAnimationFrame", function(){
 		it("isn't defined", function(done){
-			wait(function(){
-				canWait.data(typeof requestAnimationFrame);
+			new Zone().run(function(){
+				var data = Zone.current.data;
+				data.rAF = typeof requestAnimationFrame;
 				setTimeout(function(){});
-			}).then(function(responses){
-				assert.equal(responses[0], "undefined", "there is no rAF in node");
+			}).then(function(data){
+				assert.equal(data.rAF, "undefined", "there is no rAF in node");
 				done();
-			}, function(errors){
-				done(errors);
-			});
+			}, done);
 		});
 	});
 }
@@ -267,7 +337,7 @@ describe("Promises", function(){
 	it("A lot of resolving and rejecting", function(done){
 		var results = [];
 
-		wait(function(){
+		new Zone().run(function(){
 			Promise.resolve().then(function(){
 				results.push("4-a");
 
@@ -307,7 +377,7 @@ describe("Promises", function(){
 
 	it("Throwing in a Promise chain is returned", function(done){
 		var caught;
-		wait(function(){
+		new Zone().run(function(){
 			Promise.resolve().then(function(){
 				throw new Error("oh no");
 			}).then(null, function(err){
@@ -322,111 +392,90 @@ describe("Promises", function(){
 	});
 
 	it("Returns a value when only providing a error callback", function(done){
-		wait(function(){
+		new Zone().run(function(){
 			Promise.resolve("hello").then(null, function(){
 
 			}).then(function(value){
-				canWait.data(value);
+				Zone.current.data.response = value;
 			});
-		}).then(function(responses){
-			assert.equal(responses.length, 1, "Got ar response");
-			assert.equal(responses[0], "hello", "got the value");
+		}).then(function(data){
+			assert.equal(data.response, "hello", "got the value");
 		}).then(done);
 	});
 });
 
-describe("canWait", function(){
+describe("Zone.waitFor", function(){
 	it("caughtErrors=false will not try and catch errors", function(done){
-		wait(function(){
+		new Zone().run(function(){
 			Promise.resolve().then(function(){
-				var caught = canWait(function(){
+				var caught = Zone.waitFor(function(){
 					throw new Error("ahh!");
 				});
 				caught();
 			}).then(function(){
-				var notCaught = canWait(function(){
+				var notCaught = Zone.waitFor(function(){
 					throw new Error("oh no");
 				}, false);
 
 				notCaught();
 			}).then(null, function(){});
-		}).then(null, function(errors){
+		}).then(function(){
+			assert(false, "Wait resolved when it should not have");
+		}, function(error){
+			var errors = error.errors;
 			assert.equal(errors.length, 1, "There was 1 error");
-			assert(!canWait.currentRequest, "There is no current request");
+			assert(!Zone.current, "There is no current Zone");
 		}).then(done, done);
 	});
 });
 
-describe("canWait.data", function(){
-	it("Calling canWait.data returns data in the Promise", function(done){
-		wait(function(){
-			setTimeout(function(){
-				Promise.resolve().then(function(){
-					canWait.data(new Promise(function(resolve){
-						setTimeout(function(){
-							resolve({ foo: "bar" });
-						}, 27);
-					}));
-				});
-			}, 50);
-		}).then(function(responses){
-			assert.equal(responses.length, 1, "There was one data pushed");
-			assert.equal(responses[0].foo, "bar", "got correct response object");
-		}).then(done);
-	});
-});
-
-describe("canWait.error", function(){
+describe("Zone.error", function(){
 	it("calling canWait.error adds an error to the current request", function(done){
-		wait(function(){
+		new Zone().run(function(){
 			setTimeout(function(){
-				canWait.error(new Error("hey there"));
+				Zone.error(new Error("hey there"));
 			}, 200);
-		}).then(null, function(errors){
+		}).then(null, function(error){
+			var errors = error.errors;
 			assert.equal(errors.length, 1, "there was one error");
-			assert.equal(errors[0].message, "hey there", "it was the correct error");
+			assert.equal(errors[0].message, "hey there", "has the correct message");
 		}).then(done, done);
 	});
 });
 
 describe("outside of request lifecycle", function(){
-	it("there is no currentRequest", function(){
-		assert.equal(canWait.currentRequest, undefined,
+	it("there is no Zone.current", function(){
+		assert.equal(Zone.current, undefined,
 					 "since we are not within a request there is no " +
-						 "currentRequest");
+						 "Zone.current");
 	});
 
-	it("calling canWait returns back the function passed", function(){
+	it("calling Zone.waitFor returns back the function passed", function(){
 		var fn = function(){};
-		assert.equal(canWait(fn), fn, "Same function");
+		assert.equal(Zone.waitFor(fn), fn, "Same function");
 	});
 
-	it("calling canWait.data returns back the data", function(){
-		var data = {};
-		assert.equal(canWait.data(data), data, "Same data");
-	});
-
-	it("calling canWait.error returns back the error", function(){
+	it("calling Zone.error returns back the error", function(){
 		var error = new Error("oh no");
-		assert.equal(canWait.error(error).message, "oh no", "Same error");
+		assert.equal(Zone.error(error).message, "oh no", "Same error");
 	});
 });
 
-describe("nested requests", function(){
-	it("calling canWait.data passes data to the correct request", function(done){
-		wait(function(){
-			wait(function(){
+describe("Nested zones", function(){
+	it("Zone.current points to the correct zone.", function(done){
+		var outer = new Zone();
+
+		outer.run(function(){
+			var inner = new Zone();
+			inner.run(function(){
 				setTimeout(function(){
-					canWait.data({ hello: "world" });
+					Zone.current.data.hello = "world";
 				}, 20);
-			}).then(function(responses){
-				responses.forEach(function(r){
-					canWait.data(r);
-				});
+			}).then(function(data){
+				Zone.current.data.hello = data.hello;
 			});
-		}).then(function(responses){
-			assert.equal(responses.length, 1, "got back a response");
-			assert.equal(responses[0].hello, "world", "correct response");
+		}).then(function(data){
+			assert.equal(data.hello, "world", "correct data");
 		}).then(done, done);
 	});
 });
@@ -434,42 +483,53 @@ describe("nested requests", function(){
 if(isNode) {
 	describe("process.nextTick", function(){
 		it("works", function(done){
-			wait(function(){
+			new Zone().run(function(){
 				process.nextTick(function(){
-					canWait.data("hello");
+					Zone.current.data.hello = "world";
 				});
-			}).then(function(responses){
-				assert.equal(responses.length, 1, "there is one result");
+			}).then(function(data){
+				assert.equal(data.hello, "world", "Got the data");
 			})
 			.then(done, done);
 		});
 	});
 }
 
-describe("Options", function(){
-	it("overrides work", function(done){
-		var Override = wait.Override;
-		var myFoo = {};
-
-		var waitOptions = {
-			overrides: [
-				function(){
-					return new Override(g, "FOO", function() { return myFoo; });
-				}
-			]
-		};
-
-		wait(function(){
+describe("Zone.ignore", function(){
+	it("allows you to ignore function calls", function(done){
+		function io(){
 			setTimeout(function(){
-				assert.equal(FOO, myFoo, "Global was overwritten");
-			}, 10);
-		}, waitOptions).then(done, function(errors){
-			done(errors[0]);
+
+			}, 20);
+		}
+
+		new Zone().run(function(){
+			setTimeout(function(){
+				var fn = Zone.ignore(io);
+
+				var zone = Zone.current;
+				assert.equal(zone.waits, 1, "Waiting on the currect task");
+				fn();
+				assert.equal(zone.waits, 1, "No new waits were added");
+
+				setTimeout(function(){
+					Zone.current.data.a = "b";
+				}, 30);
+			});
+		}).then(function(data){
+			assert.equal(data.a, "b", "calls after the ignored function " +
+						 "are handled");
+		}).then(done);
+	});
+
+	it("works outside of a request context", function(){
+		var fn = Zone.ignore(function(){
+			return "hello";
 		});
+
+		assert.equal(fn(), "hello", "the wrapper works");
 	});
 });
 
-
 // Require other things
-require("./waitfor-cjs");
-require("./ignore");
+require("./xhr");

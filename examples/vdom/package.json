@@ -1,0 +1,33 @@
+{
+  "name": "jquery-demo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "detect-node": "^2.0.3",
+    "express": "^4.13.4",
+    "install": "^0.5.2",
+    "isomorphic-fetch": "^2.2.1",
+    "jquery": "^2.2.1",
+    "jsdom": "^8.0.4",
+    "npm": "^3.7.5",
+    "object-assign": "^4.0.1",
+    "steal": "^0.14.0",
+    "vdom-to-html": "^2.2.0",
+    "vdom-virtualize": "^1.0.5",
+    "virtual-dom": "^2.1.1",
+    "xmlhttprequest": "^1.8.0"
+  },
+  "system": {
+    "npmAlgorithm": "flat",
+    "map": {
+      "can-wait/xhr": "xhr"
+    }
+  }
+}

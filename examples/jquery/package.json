@@ -1,0 +1,27 @@
+{
+  "name": "jquery-demo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "detect-node": "^2.0.3",
+    "express": "^4.13.4",
+    "jquery": "^2.2.1",
+    "jsdom": "^8.0.4",
+    "object-assign": "^4.0.1",
+    "steal": "^0.14.0"
+  },
+  "system": {
+    "npmAlgorithm": "flat",
+    "map": {
+	  "can-wait": "lib/zone",
+      "can-wait/xhr": "xhr"
+    }
+  }
+}

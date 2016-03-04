@@ -107,6 +107,42 @@ describe("new Zone", function(){
 			done();
 		}, done);
 	});
+
+	it("Handles plugins that are used more than once", function(done){
+		var counter = function(data){
+			data.count = 0;
+
+			return {
+				beforeTask: function(){
+					data.count++;
+				}
+			};
+		};
+
+		var other = function(){
+			return {
+				plugins: [counter]
+			};
+		};
+
+		var one = new Zone({
+			plugins: [counter, other]
+		});
+
+		var two = new Zone({
+			plugins: [other, counter]
+		});
+
+		var both = Promise.all([
+			one.run(function(){}),
+			two.run(function(){})
+		]);
+
+		both.then(function(result){
+			assert.equal(result[0].count, 1, "Counter ran once");
+			assert.equal(result[1].count, 1, "Counter ran once");
+		}).then(done, done);
+	});
 });
 
 describe("setTimeout", function(){

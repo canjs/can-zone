@@ -143,6 +143,18 @@ describe("new Zone", function(){
 			assert.equal(result[1].count, 1, "Counter ran once");
 		}).then(done, done);
 	});
+
+	it("Calls an `ended` hook when the zone ends", function(done){
+		new Zone(function(data){
+			return {
+				ended: function(){
+					data.foo = "bar";
+				}
+			};
+		}).run(function(){}).then(function(data){
+			assert.equal(data.foo, "bar", "data was added in the end");
+		}).then(done, done);
+	});
 });
 
 describe("setTimeout", function(){

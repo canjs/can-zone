@@ -1,4 +1,4 @@
-var canWait = require("can-wait");
+var canWait = require("can-zone");
 
 var results = [];
 

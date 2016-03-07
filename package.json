@@ -1,5 +1,5 @@
 {
-  "name": "can-wait",
+  "name": "can-zone",
   "version": "0.3.2",
   "description": "Asynchronous render for all frameworks",
   "main": "lib/zone.js",
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/canjs/can-wait.git"
+    "url": "git+ssh://git@github.com/canjs/can-zone.git"
   },
   "keywords": [
     "server-side",
@@ -22,9 +22,9 @@
   "author": "Bitovi",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/canjs/can-wait/issues"
+    "url": "https://github.com/canjs/can-zone/issues"
   },
-  "homepage": "https://github.com/canjs/can-wait#readme",
+  "homepage": "https://github.com/canjs/can-zone#readme",
   "devDependencies": {
     "chai": "^3.4.1",
     "mocha": "^2.3.4",

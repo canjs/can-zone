@@ -1,20 +1,20 @@
-[![Build Status](https://travis-ci.org/canjs/can-wait.svg?branch=master)](https://travis-ci.org/canjs/can-wait)
-[![npm version](https://badge.fury.io/js/can-wait.svg)](http://badge.fury.io/js/can-wait)
+[![Build Status](https://travis-ci.org/canjs/can-zone.svg?branch=master)](https://travis-ci.org/canjs/can-zone)
+[![npm version](https://badge.fury.io/js/can-zone.svg)](http://badge.fury.io/js/can-zone)
 
-# can-wait
+# can-zone
 
 A library that tracks asynchronous activity and lets you know when it has completed. Useful when you need to call a function and wait for all async behavior to complete, such as when performing rendering.
 
 ## Install
 
 ```
-npm install can-wait --save
+npm install can-zone --save
 ```
 
 ## Usage
 
 ```js
-var Zone = require("can-wait");
+var Zone = require("can-zone");
 
 new Zone().run(function(){
 
@@ -42,7 +42,7 @@ new Zone().run(function(){
 
 JavaScript uses various task queues (and a microtask queue) to run JavaScript in the event loop. See [this article](https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/) and [this StackOverflow answer](http://stackoverflow.com/questions/25915634/difference-between-microtask-and-macrotask-within-an-event-loop-context) to learn more.
 
-For can-wait to work we have to override various task-creating functionality, this is the list of what we currently implement:
+For can-zone to work we have to override various task-creating functionality, this is the list of what we currently implement:
 
 **Macrotasks**
 
@@ -60,7 +60,7 @@ For can-wait to work we have to override various task-creating functionality, th
 In Node there are various async methods that do not fall into the most common macrotasks, but still might need to be tracked. To accomodate this we expose a global `Zone.waitFor` function that can be used to wait on the outcome of an asynchronous request.
 
 ```js
-var Zone = require("can-wait");
+var Zone = require("can-zone");
 var fs = require("fs");
 
 fs.readFile("some/file", Zone.waitFor(function(err, file){
@@ -73,7 +73,7 @@ fs.readFile("some/file", Zone.waitFor(function(err, file){
 Represents the currently running zone. If the code using **Zone.current** is not running within a zone the value will be undefined.
 
 ```js
-var Zone = require("can-wait");
+var Zone = require("can-zone");
 
 var myZone = new Zone();
 
@@ -91,7 +91,7 @@ myZone.run(function(){
 This is useful if there is async functionality other than what [we implement](#tasks). You might be using a library that has C++ bindings and doesn't go through the normal JavaScript async APIs.
 
 ```js
-var Zone = require("can-wait");
+var Zone = require("can-zone");
 var asyncThing = require("some-module-that-does-secret-async-stuff");
 
 asyncThing(Zone.waitFor(function(){
@@ -101,10 +101,10 @@ asyncThing(Zone.waitFor(function(){
 
 ### Zone.prototype.data
 
-You might want to get data back from can-wait, for example if you are using the library to track asynchronous rendering requests. Each zone contains a **data** object which can be used to store artibitrary values.
+You might want to get data back from can-zone, for example if you are using the library to track asynchronous rendering requests. Each zone contains a **data** object which can be used to store artibitrary values.
 
 ```js
-var Zone = require("can-wait");
+var Zone = require("can-zone");
 
 var xhr = new XMLHttpRequest();
 xhr.open("GET", "http://example.com");
@@ -120,7 +120,7 @@ xhr.send();
 Allows you to add an error to the currently running zone.
 
 ```js
-var Zone = require("can-wait");
+var Zone = require("can-zone");
 
 new Zone().run(function(){
 
@@ -138,7 +138,7 @@ new Zone().run(function(){
 Creates a function that, when called, will not track any calls. This might be needed if you are calling code that does unusual things, like using setTimeout recursively indefinitely.
 
 ```js
-var Zone = require("can-wait");
+var Zone = require("can-zone");
 
 new Zone().run(function(){
 	function recursive(){
@@ -159,7 +159,7 @@ new Zone().run(function(){
 Each zone you create takes a **ZoneSpec** that defines behaviors that will be added to the zone. A common use case is to provide globals that you want to add within the zone. Common globals such as **document**, **window**, and **location** can be placed directly on the zoneSpec, all others within the **globals** object.
 
 ```js
-var Zone = require("can-wait");
+var Zone = require("can-zone");
 
 var zone = new Zone({
 	document: document,
@@ -172,7 +172,7 @@ var zone = new Zone({
 The ZoneSpec can be provided as an object (like above) or a function that returns a ZoneSpec:
 
 ```js
-var Zone = require("can-wait");
+var Zone = require("can-zone");
 
 var zone = new Zone(function(){
 	var foo = "bar";

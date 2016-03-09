@@ -155,6 +155,20 @@ describe("new Zone", function(){
 			assert.equal(data.foo, "bar", "data was added in the end");
 		}).then(done, done);
 	});
+
+	it("Zone hooks are called once per async task", function(done){
+		var times = 0;
+		new Zone({
+			beforeTask: function(){
+				times++;
+			}
+		}).run(function(){
+			var fn = Zone.current.wrap(function(){});
+			fn();
+		}).then(function(){
+			assert.equal(times, 1, "Hook called once");
+		}).then(done, done);
+	});
 });
 
 describe("setTimeout", function(){

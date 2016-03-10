@@ -169,6 +169,45 @@ describe("new Zone", function(){
 			assert.equal(times, 1, "Hook called once");
 		}).then(done, done);
 	});
+
+	it("Correctly unwraps globals", function(done){
+		var g = env.global;
+		g.FOO = "bar";
+
+		var a = function(){
+			var old;
+			return {
+				beforeTask: function(){
+					old = g.FOO;
+					g.FOO = "a";
+				},
+				afterTask: function(){
+					g.FOO = old;
+				}
+			};
+		};
+
+		var b = function(){
+			var old;
+			return {
+				beforeTask: function(){
+					old = g.FOO;
+					g.FOO = "b";
+				},
+				afterTask: function(){
+					g.FOO = old;
+				}
+			};
+		};
+
+		new Zone({
+			plugins: [a, b]
+		}).run(function(){}).then(function(){
+			assert.equal(g.FOO, "bar", "Global was restored");
+			delete g.FOO;
+			done();
+		});
+	});
 });
 
 describe("setTimeout", function(){

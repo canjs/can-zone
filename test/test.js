@@ -8,6 +8,7 @@ if(!isNode) {
 	require("steal-mocha");
 }
 var isBrowser = !isNode;
+var supportsMutationObservers = isBrowser && typeof MutationObserver === "function";
 
 describe("new Zone", function(){
 	it("Provides hooks to before and after tasks run", function(done){
@@ -210,6 +211,25 @@ describe("new Zone", function(){
 	});
 });
 
+describe("Reusing zones", function(){
+	it("setTimeout ids are tracked", function(done){
+		var zone = new Zone();
+		var numberOfIds = function() { return Object.keys(zone.ids).length; };
+		var fn = function(){
+			setTimeout(function(){});
+		};
+
+		zone.run(fn).then(function(){
+			zone.run(function(){
+				fn();
+				assert.equal(numberOfIds(), 1, "An id was added to the list");
+			}).then(function(){
+				done();
+			}, done);
+		});
+	});
+});
+
 describe("setTimeout", function(){
 	it("basics works", function(done){
 		var results = [];
@@ -229,6 +249,46 @@ describe("setTimeout", function(){
 			assert.equal(data.timeout.length, 2, "Got 2 results");
 		}).then(done, function(err){
 			done(err);
+		});
+	});
+
+	it("Can be in nested Zones", function(done){
+		var zoneOne = new Zone();
+		zoneOne.run(function(){
+			var outerZone = Zone.current;
+			assert.equal(outerZone, zoneOne, "Zone.current is correct");
+			setTimeout(function(){
+				outerZone.data.first = true;
+			});
+
+			var zoneTwo = new Zone();
+			zoneTwo.run(function(){
+				var innerZone = Zone.current;
+				assert.equal(innerZone, zoneTwo, "Zone.current is correct");
+
+				setTimeout(function(){
+					outerZone.data.second = true;
+				});
+			});
+		}).then(function(data){
+			assert(data.first, "First setTimeout completed");
+			assert(data.second, "Second setTimeout completed");
+			done();
+		});
+	});
+
+	it("Doesn't add ids when being run after the Zone has completed", function(done){
+		var zone = new Zone();
+		var numberOfIds = function() { return Object.keys(zone.ids).length; };
+		var fn = function(){
+			setTimeout(function(){});
+		};
+		zone.run(fn).then(function(){
+			assert.equal(numberOfIds(), 0, "There are no ids saved");
+			var task = new Zone.Task(zone, fn);
+			task.run();
+			assert.equal(numberOfIds(), 0, "There are no ids saved");
+			done();
 		});
 	});
 
@@ -580,6 +640,58 @@ describe("Nested zones", function(){
 		}).then(done, done);
 	});
 });
+
+if(supportsMutationObservers) {
+	describe("MutationObserver", function(){
+		it("Runs within the correct zone", function(done){
+			var zone = new Zone();
+
+			zone.run(function(){
+
+				var p = new Promise(function(resolve){
+
+					var mo = new MutationObserver(function(){
+						zone.data.inTheZone = Zone.current === zone;
+						resolve();
+					});
+					var el = document.createElement("div");
+					mo.observe(el, { childList: true });
+					el.textContent = "foobar";
+
+				});
+
+				p.then(function(){});
+
+			}).then(function(data){
+				assert(data.inTheZone, "MutationObserver run within the zone");
+				done();
+			});
+		});
+
+		it("Clearing timeouts works within a MutationObserver callback",
+		   function(done){
+			new Zone().run(function(){
+				var zone = Zone.current;
+
+				var timeoutId = setTimeout(function(){
+					zone.data.worked = false;
+				}, 10);
+
+				var mo = new MutationObserver(function(){
+					clearTimeout(timeoutId);
+					zone.data.worked = Zone.current === zone;
+				});
+				var el = document.createElement("div");
+				mo.observe(el, { childList: true });
+				el.textContent = "foobar";
+
+			}).then(function(data){
+				assert(data.worked, "Timeout was cleared in the zone");
+				done();
+			});
+		});
+	});
+}
 
 if(isNode) {
 	describe("process.nextTick", function(){

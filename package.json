@@ -4,8 +4,8 @@
   "description": "Asynchronous render for all frameworks",
   "main": "lib/zone.js",
   "scripts": {
-    "test:node": "mocha test/test.js",
-    "test:browser": "testee test/test.html --browsers firefox --reporter Spec",
+    "test:node": "mocha test/test.js && mocha test/test_register_node.js",
+    "test:browser": "testee test/test.html test/register.html --browsers firefox --reporter Spec",
     "test": "npm run test:node && npm run test:browser"
   },
   "repository": {

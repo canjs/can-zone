@@ -3,7 +3,7 @@
 
 # can-zone
 
-A library that tracks asynchronous activity and lets you know when it has completed. Useful when you need to call a function and wait for all async behavior to complete, such as when performing rendering.
+A library that tracks asynchronous activity and lets you know when it has completed. Useful when you need to call a function and wait for all async behavior to complete, such as when performing server-side rendering.
 
 ## Install
 
@@ -37,6 +37,8 @@ new Zone().run(function(){
 	// All done!
 });
 ```
+
+*Note: See the [can-zone/register docs](https://github.com/canjs/can-zone/blob/master/docs/register.md) about ensuring can-zone is registered properly.*
 
 ## Tasks
 

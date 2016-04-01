@@ -604,6 +604,19 @@ describe("Zone.waitFor", function(){
 			assert(!Zone.current, "There is no current Zone");
 		}).then(done, done);
 	});
+
+	it("do not need to pass in a function for it to work", function(done){
+		new Zone().run(function(){
+			var d = Zone.waitFor();
+
+			setTimeout(function(){
+				d();
+			});
+		})
+		.then(function(){
+			done();
+		}, done);
+	});
 });
 
 describe("Zone.error", function(){

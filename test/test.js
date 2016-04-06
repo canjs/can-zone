@@ -804,5 +804,6 @@ describe("Zone.ignore", function(){
 	});
 });
 
-// Require other things
+// Require other tests
 require("./xhr");
+require("./timeout_test");

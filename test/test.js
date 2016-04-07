@@ -807,3 +807,4 @@ describe("Zone.ignore", function(){
 // Require other tests
 require("./xhr");
 require("./timeout_test");
+require("./debug_test");

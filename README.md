@@ -210,6 +210,29 @@ The ZoneSpec defines the following hooks:
 
 Called when the zone is first created, after all ZoneSpecs have been parsed. this is useful if you need to do setup behavior that covers the entire zone lifecycle.
 
+```js
+new Zone({
+	created: function(){
+		// Called as soon as `new Zone` is called
+	}
+});
+```
+
+#### beforeRun
+
+Called immediately before the **Zone.prototype.run** function is called.
+
+```js
+var zone = new Zone({
+	beforeRun: function(){
+		// Setup that needs to happen immediately before running
+		// the zone function
+	}
+});
+
+zone.run(function() { ... });
+```
+
 #### beforeTask
 
 Called before each Task is called. Use this to override any globals you want to exist during the execution of the task:
@@ -244,6 +267,45 @@ new Zone({
 #### ended
 
 Called when the Zone has ended and is about to exit (it's Promise will resolve).
+
+#### hooks
+
+**hooks** allows you to specify custom hooks that your plugin calls. This is mostly to communicate between plugins that inherit each other.
+
+```js
+var barZone = {
+	created: function(){
+		this.execHook("beforeBar");
+	},
+
+	hooks: ["beforeBar"]
+};
+
+var fooZone = {
+	beforeBar: function(){
+		// Called!
+	},
+	plugins: [barZone]
+};
+
+new Zone({
+	plugins: [fooZone]
+});
+
+zone.run(function() { ... });
+```
+
+### Zones
+
+**can-zone** comes with the following Zone plugins:
+
+#### xhr
+
+Allows you to instrument XHR.
+
+#### [timeout](https://github.com/canjs/can-zone/blob/master/docs/zones/timeout.md)
+
+Allows you to specify a timeout for the Zone, to prevent waiting indefinitely.
 
 ## License
 

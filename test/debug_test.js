@@ -72,14 +72,14 @@ describe("Debug Zone", function(){
 		}).then(done, done);
 	});
 
-	it("Includes debug info for the tasks that did not complete", function(done){
+	it.only("Includes debug info for the tasks that did not complete", function(done){
 		var zone = new Zone(debugZone(20));
 
 		zone.run(function(){
-			setTimeout(function(){}, 10);
+			setTimeout(function(){}, 1);
 
 			function someFunc(){
-				setTimeout(function(){}, 30);
+				setTimeout(function(){}, 50);
 			}
 			someFunc();
 

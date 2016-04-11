@@ -305,6 +305,8 @@ Allows you to instrument XHR.
 
 #### [timeout](https://github.com/canjs/can-zone/blob/master/docs/zones/timeout.md)
 
+#### [debug](https://github.com/canjs/can-zone/blob/master/docs/zones/debug.md)
+
 Allows you to specify a timeout for the Zone, to prevent waiting indefinitely.
 
 ## License

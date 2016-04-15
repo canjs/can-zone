@@ -1,7 +1,7 @@
+![can-zone-logo](https://cloud.githubusercontent.com/assets/361671/14564599/4249847e-02f5-11e6-8704-13fca28a9426.png)
+
 [![Build Status](https://travis-ci.org/canjs/can-zone.svg?branch=master)](https://travis-ci.org/canjs/can-zone)
 [![npm version](https://badge.fury.io/js/can-zone.svg)](http://badge.fury.io/js/can-zone)
-
-![can-zone-logo](https://cloud.githubusercontent.com/assets/361671/14564599/4249847e-02f5-11e6-8704-13fca28a9426.png)
 
 # can-zone
 

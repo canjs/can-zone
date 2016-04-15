@@ -72,7 +72,7 @@ describe("Debug Zone", function(){
 		}).then(done, done);
 	});
 
-	it.only("Includes debug info for the tasks that did not complete", function(done){
+	it("Includes debug info for the tasks that did not complete", function(done){
 		var zone = new Zone(debugZone(20));
 
 		zone.run(function(){

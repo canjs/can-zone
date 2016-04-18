@@ -4,6 +4,7 @@
   "description": "Asynchronous render for all frameworks",
   "main": "lib/zone.js",
   "scripts": {
+    "build": "node scripts/build.js",
     "test:node": "mocha test/test.js && mocha test/test_register_node.js",
     "test:browser": "testee test/test.html test/register.html --browsers firefox --reporter Spec",
     "test": "npm run test:node && npm run test:browser"
@@ -30,15 +31,16 @@
     "mocha": "^2.3.4",
     "steal": "^0.12.4",
     "steal-mocha": "0.0.3",
+    "steal-tools": "^0.16.0",
     "testee": "^0.2.2"
   },
   "system": {
     "npmDependencies": [
       "steal-mocha",
       "mocha",
-	  "chai"
+      "chai"
     ],
-	"map": {
+    "map": {
       "./assert": "chai/chai"
     },
     "meta": {

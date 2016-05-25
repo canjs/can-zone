@@ -766,6 +766,48 @@ if(isNode) {
 			.then(done, done);
 		});
 	});
+
+	describe("setImmediate", function(){
+		it("works", function(done){
+			new Zone().run(function(){
+				debugger;
+				setImmediate(function(){
+					Zone.current.data.hello = "world";
+				});
+			}).then(function(data){
+				assert.equal(data.hello, "world", "Got the data");
+			})
+			.then(done, done);
+		});
+	});
+
+	describe("clearImmediate", function(){
+		it("decrements the wait count", function(done){
+			new Zone().run(function(){
+				setImmediate(function(){
+					var id = setImmediate(function(){
+						thisWillThrow();
+					});
+
+					clearImmediate(id);
+					checkRequestIds();
+				});
+			}).then(function(){
+				assert.ok(true, "It finished");
+			}).then(done);
+
+			function checkRequestIds() {
+				var zone = Zone.current;
+				var count = 0;
+				for(var p in zone.ids) {
+					count++;
+				}
+
+				assert.equal(count, 0, "There are no ids outstanding");
+			}
+		});
+
+	});
 }
 
 describe("Zone.ignore", function(){

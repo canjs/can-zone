@@ -30,6 +30,8 @@
 		"Promise.prototype.then",
 		"XMLHttpRequest.prototype.send",
 		"process.nextTick",
+		"setImmediate",
+		"clearImmediate",
 		{ prop: "MutationObserver", fn: function(MutationObserver){
 			return function(fn){
 				return new MutationObserver(fn);

@@ -1,0 +1,31 @@
+[
+	{"can-zone": [
+		{"static": [
+			"can-zone.waitFor",
+			"can-zone.current",
+			"can-zone.ignore",
+			"can-zone.error"
+		]},
+		{"prototype": [
+			"can-zone.prototype.run",
+			"can-zone.prototype.data",
+			"can-zone.prototype.addWait",
+			"can-zone.prototype.removeWait"
+		]},
+		{"types": [
+			"can-zone.ZoneSpec",
+			"can-zone.makeZoneSpec"
+		]},
+		{"modules": [
+			"can-zone/register"
+		]},
+		{"plugins": [
+			{"can-zone/timeout": [
+				"can-zone/timeout.TimeoutError"
+			]},
+			{"can-zone/debug": [
+				"can-zone/debug.DebugInfo"
+			]}
+		]}
+	]}
+]

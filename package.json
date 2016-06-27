@@ -5,6 +5,7 @@
   "main": "lib/zone.js",
   "scripts": {
     "build": "node scripts/build.js",
+    "document": "bit-docs",
     "test:node": "mocha test/test.js && mocha test/test_register_node.js",
     "test:browser": "testee test/test.html test/register.html --browsers firefox --reporter Spec",
     "test": "npm run test:node && npm run test:browser"
@@ -27,6 +28,7 @@
   },
   "homepage": "https://github.com/canjs/can-zone#readme",
   "devDependencies": {
+    "bit-docs": "0.0.7",
     "chai": "^3.4.1",
     "mocha": "^2.3.4",
     "steal": "^0.12.4",
@@ -49,5 +51,21 @@
         "exports": "chai.assert"
       }
     }
+  },
+  "bit-docs": {
+    "dependencies": {
+      "bit-docs-glob-finder": "^0.0.5",
+      "bit-docs-dev": "^0.0.3",
+      "bit-docs-js": "^0.0.3",
+      "bit-docs-generate-readme": "^0.0.8"
+    },
+    "glob": {
+      "pattern": "**/*.{js,md}",
+      "ignore": "node_modules/**/*"
+    },
+    "readme": {
+      "apis": "./docs/apis.json"
+    },
+    "parent": "can-view-live"
   }
 }

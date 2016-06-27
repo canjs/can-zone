@@ -1,4 +1,45 @@
-# can-zone/debug
+@module {function} can-zone/debug can-zone/debug
+@parent can-zone.plugins
+
+@signature `debug(ms)`
+
+Creates a new [can-zone.ZoneSpec] that can be provided to your Zone, timing out in `ms` (milliseconds).
+
+```js
+var Zone = require("can-zone");
+var debug = require("can-zone/debug");
+
+var zone = new Zone({
+	plugins: [debug(5000)]
+})
+.catch(function(err){
+	var info = zone.data.debugInfo;
+});
+```
+
+See the [can-zone/debug.DebugInfo] type for a list of properties 
+
+@param {Number} ms The timeout, in milliseconds, before the [can-zone Zone] will be rejected and debug information attached to the [can-zone.prototype.data zone's data] object.
+
+@signature `debug(timeoutZone)`
+
+Like the previous signature, but directly pass it a [can-zone/timeout timeout ZoneSpec] object that you create yourself.
+
+```js
+var debug = require("can-zone/debug");
+var timeout = require("can-zone/timeout");
+
+var timeoutZone = timeout(5000);
+var debugZone = debug(timeoutZone):
+
+...
+```
+
+@param {can-zone/timeout} timeoutZone A [can-zone.ZoneSpec] created using the timeout plugin.
+
+@body
+
+## Use
 
 The **debug** zone gives you information about which tasks failed to complete in case of a timeout. It is to be used with [./timeout.md](can-zone/timeout).
 
@@ -19,7 +60,6 @@ zone.run(function(){
 	var debugInfo = zone.data.debugInfo;
 
 });
-
 ```
 
 ## DebugInfo

@@ -1,6 +1,9 @@
-## can-zone/register
+@module {function} can-zone/register can-zone/register
+@parent can-zone.modules
 
-In order to do it's magic, can-zone has to register handlers for all of the common JavaScript async operations. If you have code (or a dependency with this code) that does:
+@description
+
+In order to do it's magic, [can-zone] has to register handlers for all of the common JavaScript async operations. If you have code (or a dependency with this code) that does:
 
 ```js
 var st = setTimeout;

@@ -252,6 +252,17 @@ describe("setTimeout", function(){
 		});
 	});
 
+	it("Passes extra parameters to callback", function(done){
+		var zone = new Zone();
+		zone.run(function(){
+			setTimeout(function(str1, str2){
+				zone.data.foo = str1 + "-" + str2;
+			}, 10, "can", "zone");
+		}).then(function(data){
+			assert.equal(data.foo, "can-zone", "Extra parameters are passed");
+		}).then(done, done);
+	});
+
 	it("Can be in nested Zones", function(done){
 		var zoneOne = new Zone();
 		zoneOne.run(function(){

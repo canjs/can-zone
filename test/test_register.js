@@ -1,4 +1,5 @@
 var assert = require("assert");
+var g = require("../lib/env").global;
 var isNode = require("../lib/env").isNode;
 
 // For the test, this must be required before Zone
@@ -55,4 +56,34 @@ describe("Modules using local references to globals", function(){
 			});
 		});
 	}
+});
+
+describe("Late-bound overriding of Promise", function(){
+	it("works", function(done){
+		var P = g.Promise = function(){
+			this._stuff = {foo: function(){}};
+		};
+
+		P.prototype.then = function(){
+			var p = new P();
+
+			var stuff = this._stuff;
+			stuff.foo();
+
+			return p;
+		};
+
+		new Zone().run(function(){
+			debugger;
+			var p = new Promise(function(resolve){
+				resolve();
+			});
+			p.then(function(){
+				Zone.current.data.worked = true;
+			});
+		}).then(function(data){
+			assert.ok(data.worked);
+			done();
+		});
+	});
 });

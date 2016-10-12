@@ -5,6 +5,7 @@
 @group can-zone.types types
 @group can-zone.modules modules
 @group can-zone.plugins plugins
+@package ../package.json
 
 @signature `new Zone()`
 
@@ -56,7 +57,7 @@ These two are equivalent:
 ```js
 new Zone({
 	created: function(){
-		
+
 	}
 });
 
@@ -85,7 +86,7 @@ This gives you a [can-zone Zone] from which you can run code using [can-zone.pro
 
 ```js
 zone.run(function(){
-	
+
 	setTimeout(function(){
 
 	}, 500);

@@ -37,12 +37,13 @@
     "bit-docs": "0.0.7",
     "chai": "^3.4.1",
     "mocha": "^2.3.4",
-    "steal": "^0.12.4",
+    "steal": "^0.16.0",
     "steal-mocha": "0.0.3",
     "steal-tools": "^0.16.0",
     "testee": "^0.2.2"
   },
   "system": {
+    "npmAlgorithm": "flat",
     "npmDependencies": [
       "steal-mocha",
       "mocha",

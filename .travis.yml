@@ -1,7 +1,6 @@
 sudo: false
 language: node_js
 node_js:
-  - 0.12
   - 5.3
 script: npm run test:node
 before_install:

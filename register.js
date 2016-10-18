@@ -41,6 +41,21 @@
 
 	wrapAll();
 
+	if(g.Promise) {
+		monitor(g, "Promise", "Promise.prototype.then");
+	}
+
+	function extract(obj, prop) {
+		var parts = prop.split(".");
+		while(parts.length > 1) {
+			prop = parts.shift();
+			obj = obj[prop];
+			if(!obj) break;
+			if(parts.length === 1) prop = parts[0];
+		}
+		return [obj, prop];
+	}
+
 	function wrapAll(){
 		forEach.call(props, function(prop){
 			var fn;
@@ -56,14 +71,9 @@
 				return;
 			}
 
-			var obj = g;
-			var parts = prop.split(".");
-			while(parts.length > 1) {
-				prop = parts.shift();
-				obj = obj[prop];
-				if(!obj) break;
-				if(parts.length === 1) prop = parts[0];
-			}
+			var results = extract(g, prop);
+			var obj = results[0];
+			prop = results[1];
 
 			// This happens if the environment doesn't support this property
 			if(!obj || !obj[prop]) {
@@ -91,6 +101,28 @@
 		};
 		wrappedFn.zoneWrapped = true;
 		object[property] = wrappedFn;
+	}
+
+	function monitor(object, property, thingToRewrap) {
+		var current = object[property];
+		
+		Object.defineProperty(object, property, {
+			get: function(){
+				return current;
+			},
+			set: function(val){
+				var hasChanged = !val.zoneWrapped && val !== current;
+				current = val;
+
+				if(hasChanged) {
+					var results = extract(object, thingToRewrap);
+					var localObject = results[0];
+					var localProperty = results[1];
+					wrapInZone(localObject, localProperty);
+					monitor(object, property, thingToRewrap);
+				}
+			}
+		});
 	}
 
 })();

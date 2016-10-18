@@ -603,24 +603,6 @@ describe("Promises", function(){
 			done();
 		});
 	});
-
-	if(typeof System === "object" && !!System.import) {
-		it("Rejects an import for a file that doesn't exist", function(done){
-			new Zone().run(function(){
-				var p = System.import("fake/module");
-
-				p.then(function(mod){
-					Zone.error(new Error("import worked when it should not have"));
-				}, function(err){
-					Zone.current.data.worked = true;
-				});
-
-			}).then(function(data){
-				assert.ok(data.worked, "it rejected like it should have");
-				done();
-			}, done);
-		});
-	}
 });
 
 describe("Zone.waitFor", function(){

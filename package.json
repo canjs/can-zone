@@ -1,6 +1,6 @@
 {
   "name": "can-zone",
-  "version": "0.5.8",
+  "version": "0.5.9",
   "description": "Asynchronous render for all frameworks",
   "main": "lib/zone.js",
   "scripts": {
@@ -42,7 +42,7 @@
     "steal-mocha": "1.0.0-pre.1",
     "steal-tools": "^0.16.0",
     "testee": "^0.2.2"
-  },  
+  },
   "system": {
     "npmAlgorithm": "flat",
     "npmDependencies": [

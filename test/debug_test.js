@@ -1,6 +1,7 @@
 var assert = require("assert");
 var debugZone = require("../debug");
 var timeout = require("../timeout");
+var Zone = require("../lib/zone");
 
 describe("Debug Zone", function(){
 	describe("Main API", function(){

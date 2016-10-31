@@ -93,8 +93,8 @@
 			fn = object[property];
 		}
 		var wrappedFn = function(){
-			if(typeof Zone !== "undefined" && !!Zone.current) {
-				return Zone.tasks[property](fn).apply(this, arguments);
+			if(typeof CanZone !== "undefined" && !!CanZone.current) {
+				return CanZone.tasks[property](fn).apply(this, arguments);
 			}
 
 			return fn.apply(this, arguments);
@@ -105,7 +105,7 @@
 
 	function monitor(object, property, thingToRewrap) {
 		var current = object[property];
-		
+
 		Object.defineProperty(object, property, {
 			get: function(){
 				return current;

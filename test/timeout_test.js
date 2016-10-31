@@ -1,6 +1,7 @@
 var assert = require("assert");
 var timeoutZone = require("../timeout");
 var TimeoutError = timeoutZone.TimeoutError;
+var Zone = require("../lib/zone");
 
 describe("Timeout Zone", function(){
 

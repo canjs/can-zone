@@ -1,6 +1,6 @@
 {
   "name": "can-zone",
-  "version": "0.5.9",
+  "version": "0.5.10",
   "description": "Asynchronous render for all frameworks",
   "main": "lib/zone.js",
   "scripts": {

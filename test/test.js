@@ -565,7 +565,8 @@ describe("Promises", function(){
 
 	it("Throwing in a Promise chain is returned", function(done){
 		var caught;
-		new Zone().run(function(){
+		var zone = new Zone();
+		zone.run(function(){
 			Promise.resolve().then(function(){
 				throw new Error("oh no");
 			}).then(null, function(err){
@@ -576,6 +577,7 @@ describe("Promises", function(){
 					 "resolved wait promise");
 			assert(!!caught, "Called the Promise errback");
 			assert.equal(caught.message, "oh no", "Correct error object");
+			assert(!zone.runningTask, "Zone is not currently running a task");
 		}).then(done);
 	});
 

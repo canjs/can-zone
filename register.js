@@ -93,8 +93,8 @@
 			fn = object[property];
 		}
 		var wrappedFn = function(){
-			if(typeof CanZone !== "undefined" && !!CanZone.current) {
-				return CanZone.tasks[property](fn).apply(this, arguments);
+			if(typeof can !== "undefined" && can.Zone && can.Zone.current) {
+				return can.Zone.tasks[property](fn).apply(this, arguments);
 			}
 
 			return fn.apply(this, arguments);

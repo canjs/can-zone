@@ -9,7 +9,7 @@
     "document": "bit-docs",
     "test:node": "mocha test/test.js && mocha test/test_register_node.js",
     "test:browser": "testee test/test.html test/register.html --browsers firefox --reporter Spec",
-	"test:xss": "mocha test/xss/test.js",
+    "test:xss": "mocha test/xss/test.js",
     "test": "npm run test:node && npm run test:browser && npm run test:xss",
     "version": "git commit -am \"Update dist for release\" && git checkout -b release && git add -f dist/",
     "postversion": "git push --tags && git checkout master && git branch -D release && git push",
@@ -47,6 +47,7 @@
   "system": {
     "npmAlgorithm": "flat",
     "npmDependencies": [
+      "can-namespace",
       "steal-mocha",
       "mocha",
       "chai"
@@ -76,5 +77,8 @@
       "apis": "./docs/apis.json"
     },
     "parent": "can-view-live"
+  },
+  "dependencies": {
+    "can-namespace": "^1.0.0"
   }
 }

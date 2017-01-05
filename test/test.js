@@ -597,7 +597,7 @@ describe("Promises", function(){
 		new Zone().run(function(){
 
 			Promise.reject("uh oh").then().then(null, function(err){
-				Zone.current.data.reason = err.message;
+				Zone.current.data.reason = err;
 			});
 
 		}).then(function(data){

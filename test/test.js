@@ -748,6 +748,30 @@ if(supportsMutationObservers) {
 	});
 }
 
+if(isBrowser) {
+	describe("addEventListener", function(){
+		it("is run within a zone", function(done){
+			this.timeout(2000);
+
+			var el = document.createElement("div");
+
+			new Zone().run(function(){
+				var id = setTimeout(function(){}, 10000);
+
+				el.addEventListener("clear-me", function(){
+					assert.ok(Zone.current, "this is run in a zone");
+					clearTimeout(id);
+				});
+			}).then(function(){
+				assert.ok(true, "it finished");
+			})
+			.then(done, done);
+
+			el.dispatchEvent(new Event("clear-me"));
+		});
+	});
+}
+
 if(isNode) {
 	describe("process.nextTick", function(){
 		it("works", function(done){

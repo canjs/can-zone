@@ -29,6 +29,7 @@
 		"requestAnimationFrame",
 		"Promise.prototype.then",
 		"XMLHttpRequest.prototype.send",
+		"Node.prototype.addEventListener",
 		"process.nextTick",
 		"setImmediate",
 		"clearImmediate",

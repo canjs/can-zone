@@ -342,6 +342,21 @@ describe("setTimeout", function(){
 				assert.ok(true, "it finished");
 			}).then(done);
 		});
+
+		if(!isNode) {
+			it("Decrements the wait count when in a Node-like environment with number timeout ids", function(done){
+				// This is to fake NW.js
+				env.isNode = true;
+				new Zone().run(function(){
+					var id = setTimeout(Function.constructor, 20000);
+					clearTimeout(id);
+				}).then(function(){
+					env.isNode = false;
+					assert.ok(true, "it finished");
+				})
+				.then(done);
+			});
+		}
 	});
 });
 
@@ -789,7 +804,6 @@ if(isNode) {
 	describe("setImmediate", function(){
 		it("works", function(done){
 			new Zone().run(function(){
-				debugger;
 				setImmediate(function(){
 					Zone.current.data.hello = "world";
 				});

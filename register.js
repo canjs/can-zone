@@ -37,7 +37,9 @@
 			return function(fn){
 				return new MutationObserver(fn);
 			};
-		} }
+		} },
+		{ prop: "WebSocket.prototype", name: "WebSocketDescriptor",
+			descriptor: "onmessage" }
 	];
 
 	wrapAll();
@@ -59,9 +61,11 @@
 
 	function wrapAll(){
 		forEach.call(props, function(prop){
-			var fn;
+			var fn, descriptor, taskName;
 			if(typeof prop === "object") {
 				fn = prop.fn;
+				descriptor = prop.descriptor;
+				taskName = prop.name;
 				prop = prop.prop;
 			}
 
@@ -83,7 +87,14 @@
 				wrapped[key] = true;
 			}
 
-			wrapInZone(obj, prop, fn);
+			if(descriptor) {
+				// obj == the prototype
+				// descriptor == property name
+				wrapDescriptor(obj[prop], descriptor, taskName);
+			} else {
+				wrapInZone(obj, prop, fn);
+			}
+
 		});
 	}
 
@@ -102,6 +113,33 @@
 		};
 		wrappedFn.zoneWrapped = true;
 		object[property] = wrappedFn;
+	}
+
+	/**
+	 *
+	 */
+	function wrapDescriptor(prototype, property, taskName) {
+		var desc = Object.getOwnPropertyDescriptor(prototype, property);
+		var setupDescriptor = function(name){
+			var taskSetupFn = CanZone.tasks[taskName];
+			if(taskSetupFn) {
+				var newDescriptor = CanZone.tasks[taskName](desc);
+				Object.defineProperty(prototype, property, newDescriptor);
+				return newDescriptor[name];
+			} else {
+				return desc[name];
+			}
+		}
+		Object.defineProperty(prototype, property, {
+			enumerable: desc.enumerable,
+			configurable: true,
+			get: function(){
+				return setupDescriptor('get').apply(this, arguments);
+			},
+			set: function(val){
+				setupDescriptor('set').call(this, val);
+			}
+		})
 	}
 
 	function monitor(object, property, thingToRewrap) {

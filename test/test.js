@@ -785,6 +785,29 @@ if(isBrowser) {
 			el.dispatchEvent(new Event("clear-me"));
 		});
 	});
+
+	describe("WebSocket", function(){
+		it("is run within a zone", function(done){
+			this.timeout(5000);
+			var id;
+			var ws = new WebSocket("ws://chat.donejs.com");
+
+			ws.onmessage = function(){
+				clearTimeout(id);
+			};
+
+			var zone = new Zone();
+			Zone.top = zone;
+			zone.run(function(){
+				id = setTimeout(function(){}, 500);
+			}).then(function(){
+				assert.ok(true, "it finished");
+			})
+			.then(done, done);
+
+			ws.onmessage();
+		});
+	});
 }
 
 if(isNode) {

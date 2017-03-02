@@ -36,6 +36,7 @@
   },
   "homepage": "https://github.com/canjs/can-zone#readme",
   "devDependencies": {
+    "assert": "^1.4.1",
     "bit-docs": "0.0.7",
     "chai": "^3.4.1",
     "mocha": "^3.2.0",
@@ -46,6 +47,7 @@
   },
   "steal": {
     "npmDependencies": [
+      "assert",
       "steal-mocha",
       "mocha",
       "chai"

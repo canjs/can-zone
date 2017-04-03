@@ -62,10 +62,36 @@ if(env.isNode) {
 			}).then(done, done);
 		});
 
+		describe("POST", function(){
+			it("Multiple requests to the same URL results in multiple entries", function(done){
+				var zone = new Zone({
+					plugins: [xhrZone]
+				}).run(function(){
+					function api(data) {
+						var xhr = new XMLHttpRequest();
+						xhr.open("POST", "http://example.com");
+						return new Promise(function(resolve){
+							xhr.onload = resolve;
+							xhr.send(JSON.stringify(data));
+						});
+					}
+
+
+					api({one:1}).then(function(){
+						return api({two:2});
+					});
+
+				}).then(function(data){
+					var cache = data.xhr.toString();
+					assert.ok(/{\\"one\\"/.test(cache), "got the first post");
+					assert.ok(/{\\"two\\"/.test(cache), "got the second post");
+				}).then(done, done);
+			});
+		});
 	});
 } else {
 	describe("XHR Zone in the Browser", function(){
-		describe("With XHR Cache", function(){
+		describe("Basics", function(){
 			beforeEach(function(){
 				this.oldOpen = XMLHttpRequest.prototype.open;
 				XMLHttpRequest.prototype.open = function(){};
@@ -114,6 +140,59 @@ if(env.isNode) {
 				new Zone(xhrZone).run(app).then(function(data){
 					assert.equal(data.first.foo, "bar", "got the first response");
 					assert.equal(data.second.baz, "qux", "got the second response");
+				}).then(done, done);
+			});
+		});
+
+		describe("POST with multiple requests from the same URL", function(){
+			beforeEach(function(){
+				this.oldOpen = XMLHttpRequest.prototype.open;
+				XMLHttpRequest.prototype.open = function(){};
+				g.XHR_CACHE = [
+					{ request: { url: "foo://bar", data:"{\"one\":1}" },
+						response: { responseText: '{"foo": "bar"}',
+							headers: "application/json" } },
+					{ request: { url: "foo://bar", data:"{\"two\":2}" },
+						response: { responseText: '{"baz": "qux"}',
+							headers: "application/json" } }
+				];
+			});
+
+			afterEach(function(){
+				XMLHttpRequest.prototype.open = this.oldOpen;
+				delete g.XHR_CACHE;
+			});
+
+			it("Loads each from the cache", function(done){
+				function app(){
+					assert.equal(g.XHR_CACHE.length, 2,
+								 "There are 2 items in the cache");
+
+					var first = new XMLHttpRequest();
+					first.open("POST", "foo://bar");
+					first.onload = function(){
+						Zone.current.data.first = JSON.parse(first.responseText);
+						assert.equal(g.XHR_CACHE.length, 1,
+									 "There is one item in the cache");
+					};
+					first.send(JSON.stringify({two:2}));
+
+					setTimeout(function(){
+						var second = new XMLHttpRequest();
+						second.open("POST", "foo://bar");
+						second.onload = function(){
+							var xhr = second;
+							Zone.current.data.second = JSON.parse(xhr.responseText);
+							assert.equal(g.XHR_CACHE.length, 0,
+										 "The cache is empty");
+						};
+						second.send(JSON.stringify({one:1}));
+					}, 30);
+				}
+
+				new Zone(xhrZone).run(app).then(function(data){
+					assert.equal(data.first.baz, "qux", "got the first response");
+					assert.equal(data.second.foo, "bar", "got the second response");
 				}).then(done, done);
 			});
 		});

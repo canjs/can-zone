@@ -38,7 +38,7 @@
   "devDependencies": {
     "bit-docs": "0.0.7",
     "chai": "^3.4.1",
-    "mocha": "^3.2.0",
+    "mocha": "3.2.0",
     "steal": "^1.2.10",
     "steal-mocha": "^1.0.0",
     "steal-tools": "^1.1.2",

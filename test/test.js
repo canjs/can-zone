@@ -209,6 +209,23 @@ describe("new Zone", function(){
 			done();
 		});
 	});
+
+	it("the ended hook is only called once", function(done){
+		var count = 0;
+		new Zone({
+			ended: function() { count++; }
+		}).run(function(){
+			setTimeout(function(){}, 0);
+
+			throw new Error("some error");
+		})
+		.catch(function(){
+			setTimeout(function(){
+				assert.equal(count, 1, "Endeded called once");
+				done();
+			}, 10);
+		});
+	});
 });
 
 describe("Reusing zones", function(){

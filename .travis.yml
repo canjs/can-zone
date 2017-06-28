@@ -1,7 +1,7 @@
 sudo: false
 language: node_js
 node_js:
-  - 5.3
+  - 7
 script: npm run test:node
 before_install:
   - "export DISPLAY=:99.0"

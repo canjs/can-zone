@@ -142,6 +142,31 @@ if(env.isNode) {
 					assert.equal(data.second.baz, "qux", "got the second response");
 				}).then(done, done);
 			});
+
+			it("Loads data from the cache when using onreadystatechange", function(done) {
+				function app() {
+					Promise.resolve().then(function(){
+						return new Promise(function(resolve, reject){
+							var xhr = new XMLHttpRequest();
+							xhr.open("GET", "foo://bar");
+							xhr.onreadystatechange = function(){
+								if(xhr.readyState === 4) {
+									resolve();
+								}
+							};
+							xhr.send();
+						});
+					})
+					.then(function(){
+						Zone.current.data.worked = true;
+					});
+				}
+
+				new Zone(xhrZone).run(app).then(function(data){
+					assert.equal(data.worked, true);
+				})
+				.then(done, done);
+			});
 		});
 
 		describe("POST with multiple requests from the same URL", function(){

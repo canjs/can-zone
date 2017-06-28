@@ -664,7 +664,7 @@ Each object has a shape of:
 ```js
 {
 	"task": "setTimeout",
-	"stack": Error ...."
+	"stack": "Error ...."
 }
 ```
 

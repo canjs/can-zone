@@ -7,6 +7,8 @@
 @group can-zone.plugins plugins
 @package ../package.json
 
+@description A library that tracks asynchronous activity and lets you know when it has completed. Useful when you need to call a function and wait for all async behavior to complete, such as when performing server-side rendering.
+
 @signature `new Zone()`
 
 Creates a new Zone with no additional overrides. Can then call [can-zone.prototype.run zone.run] to call a function within the Zone.
@@ -24,6 +26,8 @@ zone.run(function(){
 	data.result // -> "hello world"
 });
 ```
+
+*Note: See the [can-zone/register docs](https://github.com/canjs/can-zone/blob/master/docs/register.md) about ensuring can-zone is registered properly.*
 
 @signature `new Zone(zoneSpec)`
 
@@ -85,16 +89,45 @@ var zone = new Zone();
 This gives you a [can-zone Zone] from which you can run code using [can-zone.prototype.run zone.run]:
 
 ```js
-zone.run(function(){
+var Zone = require("can-zone");
+
+new Zone().run(function(){
 
 	setTimeout(function(){
+		
+	}, 29);
 
-	}, 500);
+	setTimeout(function(){
+		
+	}, 13);
 
-})
-then(function(){
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", "http://chat.donejs.com/api/messages");
+	xhr.onload = function(){
+		
+	};
+	xhr.send();
 
+}).then(function(){
+	// All done!
 });
 ```
 
 The function you provide to [can-zone.prototype.run] will be run within the Zone. This means any calls to asynchronous functions (in this example `setTimeout`)	will be waited on.
+
+## Tasks
+
+JavaScript uses various task queues (and a microtask queue) to run JavaScript in the event loop. See [this article](https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/) and [this StackOverflow answer](http://stackoverflow.com/questions/25915634/difference-between-microtask-and-macrotask-within-an-event-loop-context) to learn more.
+
+For can-zone to work we have to override various task-creating functionality, this is the list of what we currently implement:
+
+**Macrotasks**
+
+* setTimeout
+* XMLHttpRequest
+
+**Microtasks**
+
+* requestAnimationFrame
+* Promise
+* process.nextTick

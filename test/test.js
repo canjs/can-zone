@@ -83,6 +83,24 @@ describe("new Zone", function(){
 		}).then(done);
 	});
 
+	it("Provides beforeRun and afterRun hooks", function(done){
+		var zone = new Zone(function(data){
+			return {
+				beforeRun: function(){
+					data.beforeRunCalled = true;
+				},
+				afterRun: function(){
+					data.afterRunCalled = true;
+				}
+			};
+		});
+
+		zone.run(function(){}).then(function(data){
+			assert.ok(data.beforeRunCalled, "beforeRun did get called.");
+			assert.ok(data.afterRunCalled, "afterRun did get called.");
+		}).then(done, done);
+	});
+
 	if(isNode) {
 		it("Allows you to put common globals directly on spec object",
 		   function(done){

@@ -20,7 +20,7 @@ Using these hooks you can do things like create timers and override global varia
 
 	@option {function} beforeRun
 
-	Called immediately before the **Zone.prototype.run** function is called.
+	Called immediately before the [can-zone.prototype.run] function is called.
 
 	```js
 	var zone = new Zone({
@@ -31,6 +31,30 @@ Using these hooks you can do things like create timers and override global varia
 	});
 
 	zone.run(function() { ... });
+	```
+
+	@option {function} afterRun
+
+	Called immediately after the [can-zone.prototype.run] function is called. This hook is useful for any cleanup that might need to be done after the run function is called, but before the zone's promise is resolved. You might use this if the promise is not waited on before performing some action.
+
+	```js
+	require("http").createServer(function(req, res){
+		var zone = new Zone(function(data){
+			var document = new SomeDocument();
+
+			return {
+				...
+				afterRun: function(){
+					data.html = document.documentElement.outerHTML;
+				}
+			};
+		});
+
+		zone.run(render); // We don't want to wait for all async stuff.
+
+		res.write(zone.data.html);
+		res.end();
+	}).listen(8080);
 	```
 
 	@option {function()} beforeTask

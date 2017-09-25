@@ -16,6 +16,7 @@ test_script:
   # Output useful info for debugging.
   - node --version
   - npm --version
+  - set DEBUG=*
   # run tests
   - npm test
 

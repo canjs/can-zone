@@ -17,6 +17,7 @@ test_script:
   - node --version
   - npm --version
   # run tests
+  - npm run test:node
   - npm run test:win
 
 # Don't actually build.

@@ -83,6 +83,19 @@ describe("new Zone", function(){
 		}).then(done);
 	});
 
+	it("Can pass plugins if using an Array as the Zone argument", function(done){
+		var endZone = {
+			ended: function(){
+				this.data.hasEnded = true;
+			}
+		};
+
+		new Zone([endZone]).run(function(){}).then(function(data){
+			assert.ok(data.hasEnded, "This zone was used");
+		})
+		.then(done, done);
+	});
+
 	it("Provides beforeRun and afterRun hooks", function(done){
 		var zone = new Zone(function(data){
 			return {

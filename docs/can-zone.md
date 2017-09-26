@@ -78,6 +78,23 @@ The latter form is useful so that you have a closure specific to that [can-zone 
 
 @body
 
+## Tasks
+
+JavaScript uses various task queues (and a microtask queue) to run JavaScript in the event loop. See [this article](https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/) and [this StackOverflow answer](http://stackoverflow.com/questions/25915634/difference-between-microtask-and-macrotask-within-an-event-loop-context) to learn more.
+
+For can-zone to work we have to override various task-creating functionality, this is the list of what we currently implement:
+
+**Macrotasks**
+
+* setTimeout
+* XMLHttpRequest
+
+**Microtasks**
+
+* requestAnimationFrame
+* Promise
+* process.nextTick
+
 ## Use
 
 **can-zone** is a library that aids in tracking asynchronous calls in your application. To create a new Zone call it's constructor function with `new`:

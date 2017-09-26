@@ -26,4 +26,3 @@ The [contribution guide](https://github.com/canjs/can-zone/blob/master/CONTRIBUT
 ## License
 
 [MIT](https://github.com/canjs/can-zone/blob/master/LICENSE.md)
-

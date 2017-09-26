@@ -38,7 +38,7 @@
   "homepage": "https://github.com/canjs/can-zone#readme",
   "devDependencies": {
     "bit-docs": "0.0.7",
-    "chai": "^3.4.1",
+    "chai": "^4.0.1",
     "mocha": "^3.2.0",
     "steal": "^1.2.10",
     "steal-mocha": "^1.0.0",

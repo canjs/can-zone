@@ -1,6 +1,6 @@
 {
   "name": "can-zone",
-  "version": "0.6.10",
+  "version": "0.6.11",
   "description": "Asynchronous render for all frameworks",
   "main": "lib/zone.js",
   "scripts": {
@@ -9,7 +9,7 @@
     "document": "bit-docs",
     "test:node": "mocha test/test.js && mocha test/test_register_node.js",
     "test:browser": "testee test/test.html test/register.html --browsers firefox --reporter Spec",
-	"test:win": "testee test/test.html --browsers firefox --reporter Spec",
+    "test:win": "testee test/test.html --browsers firefox --reporter Spec",
     "test:xss": "mocha test/xss/test.js",
     "test": "npm run test:node && npm run test:browser && npm run test:xss",
     "version": "git commit -am \"Update dist for release\" && git checkout -b release && git add -f dist/",

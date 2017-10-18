@@ -30,6 +30,7 @@
 		"Promise.prototype.then",
 		"XMLHttpRequest.prototype.send",
 		"Node.prototype.addEventListener",
+		"Node.prototype.removeEventListener",
 		"process.nextTick",
 		"setImmediate",
 		"clearImmediate",

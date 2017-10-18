@@ -832,6 +832,24 @@ if(isBrowser) {
 
 			el.dispatchEvent(new Event("clear-me"));
 		});
+
+		it("removeEventListener removes the handler", function(done){
+			var el = document.createElement("div");
+
+			new Zone().run(function(){
+				function handler() {
+					throw new Error("This should not run");
+				}
+
+				el.addEventListener("some-test", handler);
+				el.removeEventListener("some-test", handler);
+				el.dispatchEvent(new Event("some-test"));
+			})
+			.then(function(data){
+				assert.ok(true, "it finished");
+			})
+			.then(done, done);
+		});
 	});
 }
 

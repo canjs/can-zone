@@ -842,7 +842,9 @@ if(isBrowser) {
 				}
 
 				el.addEventListener("some-test", handler);
+				el.addEventListener("another-test", handler);
 				el.removeEventListener("some-test", handler);
+				el.removeEventListener("another-test", handler);
 				el.dispatchEvent(new Event("some-test"));
 			})
 			.then(function(data){

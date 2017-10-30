@@ -1,5 +1,6 @@
 @module {function} can-zone
-@parent can-ecosystem
+@parent can-js-utilities
+@collection can-ecosystem
 @group can-zone.static static
 @group can-zone.prototype prototype
 @group can-zone.types types

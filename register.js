@@ -34,11 +34,22 @@
 		"process.nextTick",
 		"setImmediate",
 		"clearImmediate",
-		{ prop: "MutationObserver", fn: function(MutationObserver){
-			return function(fn){
-				return new MutationObserver(fn);
-			};
-		} }
+		{
+			prop: "MutationObserver",
+			fn: function(MutationObserver){
+				return function(fn){
+					return new MutationObserver(fn);
+				};
+			}
+		},
+		{
+			prop: "WebSocket",
+			fn: function(WebSocket){
+				return function(url, protocols){
+					return new WebSocket(url, protocols);
+				};
+			}
+		}
 	];
 
 	wrapAll();

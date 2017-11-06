@@ -812,6 +812,28 @@ if(supportsMutationObservers) {
 }
 
 if(isBrowser) {
+	describe("websockets", function () {
+		it("doesn't hang on clearTimeout in ws message", function (done) {
+			var ws;
+			new Zone().run(function () {
+				ws = new WebSocket("ws://bitovi.com/");
+				var timeout = setTimeout(function () {
+					// Testing if it worked.
+				}, 30000);
+
+				ws.onmessage = function () {
+					clearTimeout(timeout);
+				};
+			})
+			.then(function () {
+				assert.ok(true, "Zone didn't hang")
+			})
+			.then(done, done)
+
+			ws.dispatchEvent(new Event('message'))
+		});
+	});
+
 	describe("addEventListener", function(){
 		it("is run within a zone", function(done){
 			this.timeout(2000);

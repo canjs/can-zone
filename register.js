@@ -41,7 +41,7 @@
 		} }
 	];
 
-	wrapAll();
+	wrapAll(g);
 
 	if(g.Promise) {
 		monitor(g, "Promise", "Promise.prototype.then");
@@ -58,7 +58,8 @@
 		return [obj, prop];
 	}
 
-	function wrapAll(){
+	function wrapAll(globalObj){
+		var global = globalObj || g;
 		forEach.call(props, function(prop){
 			var fn;
 			if(typeof prop === "object") {
@@ -73,7 +74,7 @@
 				return;
 			}
 
-			var results = extract(g, prop);
+			var results = extract(global, prop);
 			var obj = results[0];
 			prop = results[1];
 
@@ -84,19 +85,20 @@
 				wrapped[key] = true;
 			}
 
-			wrapInZone(obj, prop, fn);
+			wrapInZone(obj, prop, fn, global);
 		});
 	}
 
-	function wrapInZone(object, property, fn) {
+	function wrapInZone(object, property, fn, global) {
 		if(fn) {
 			fn = fn(object[property]);
 		} else {
 			fn = object[property];
 		}
 		var wrappedFn = function(){
-			if(typeof CanZone !== "undefined" && !!CanZone.current) {
-				return CanZone.tasks[property](fn).apply(this, arguments);
+			var Zone = global.CanZone;
+			if(typeof Zone !== "undefined" && !!Zone.current) {
+				return Zone.tasks[property](fn, Zone).apply(this, arguments);
 			}
 
 			return fn.apply(this, arguments);

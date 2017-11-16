@@ -278,6 +278,37 @@ describe("Reusing zones", function(){
 	});
 });
 
+describe("Extending Zone", function(){
+	it("can be extending, so different Zones can operate independency", function(done){
+		function extend() {
+			function InnerZone(spec) {
+				Zone.call(this, spec);
+			}
+			InnerZone.prototype = Object.create(Zone.prototype);
+			InnerZone.prototype.constructor = InnerZone;
+			return InnerZone;
+		}
+
+		var Zone2 = extend();
+		var Zone3 = extend();
+
+		var zone2 = new Zone2();
+
+		zone2.run(function(){
+			setTimeout(Function.prototype, 20);
+
+			var zone3 = new Zone3();
+			assert.notEqual(zone3.parent, zone2, "zone3 doesn't have a parent");
+			zone3.run(function(){
+				// A long timeout, to block.
+				setTimeout(Function.prototype, 2000);
+			});
+		}).then(function(){
+			done();
+		}, done);
+	});
+});
+
 describe("setTimeout", function(){
 	it("basics works", function(done){
 		var results = [];

@@ -125,3 +125,24 @@ Using these hooks you can do things like create timers and override global varia
 		plugins: [ specOne, specTwo ]
 	});
 	```
+
+	@option {Object} globals
+
+	Specify globals that should be set during each task within the Zone. The key is the name of the global that should be set, and the value is the object that will become the global.
+
+	```js
+	var realSetTimeout = window.setTimeout;
+	var mySetTimeout = function(){
+		// Do some stuff here..
+		return realSetTimeout.apply(this, arguments);
+	};
+
+	var zone = new Zone({
+		globals: {
+			setTimeout: mySetTimeout,
+			"Promise.prototype.then": myThen
+		}
+	})
+	```
+
+	As shown above, a dot-separated string can be used as a key, to set a value on a global's property.

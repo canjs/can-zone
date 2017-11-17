@@ -69,6 +69,24 @@ Using these hooks you can do things like create timers and override global varia
 	});
 	```
 
+	@option {function()} afterTask
+
+	Called *after* each Task completes. This hook is usually used to undo state that is setup in the __beforeTask__ hook.
+
+	```js
+	var oldSetTimeout;
+
+	new Zone({
+		beforeTask: function(){
+			oldSetTimeout = window.setTimeout;
+			window.setTimeout = mySpecialSetTimeout;
+		},
+		afterTask: function(){
+			window.setTimeout = oldSetTimeout;
+		}
+	});
+	```
+
 	@option {function} ended
 
 	Called when the Zone has ended and is about to exit (it's Promise will resolve).

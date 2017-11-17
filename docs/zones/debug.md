@@ -17,7 +17,7 @@ var zone = new Zone({
 });
 ```
 
-See the [can-zone/debug.DebugInfo] type for a list of properties 
+See the [can-zone/debug.DebugInfo] type for a list of properties.
 
 @param {Number} ms The timeout, in milliseconds, before the [can-zone Zone] will be rejected and debug information attached to the [can-zone.prototype.data zone's data] object.
 
@@ -37,6 +37,16 @@ var debugZone = debug(timeoutZone):
 
 @param {can-zone/timeout} timeoutZone A [can-zone.ZoneSpec] created using the timeout plugin.
 
+@signature `debug(timeoutOrTimeoutZone, options)`
+
+Creates a new [can-zone.ZoneSpec] using either a timeout in milliseconds, or a [can-zone/timeout timeout ZoneSpec], along with an *options* object. The following options are available:
+
+@param {Number|can-zone/timeout} timeoutOrTimeoutZone Either a `Number` timeout, or a [can-zone/timeout timeout ZoneSpec].
+
+@param {Object} [options] An options object with the following parameters:
+
+  * __break__ (Boolean): When enabled, causes a `debugger;` statement to be hit after the timeout is complete. This allows stepping into the code that is preventing the Zone's run promise from completing.
+
 @body
 
 ## Use
@@ -49,7 +59,7 @@ When a timeout occurs the debug Zone will appending debug information to the Zon
 var debug = require("can-zone/debug");
 var Zone = require("can-zone");
 
-var zone = new Zone(debug(5000);
+var zone = new Zone(debug(5000));
 
 zone.run(function(){
 
@@ -69,7 +79,7 @@ The **DebugInfo** is an array of objects that contain information about which ta
 ```js
 {
 	"task": "setTimeout",
-	"stack": Error ...."
+	"stack": "Error ...."
 }
 ```
 
@@ -89,11 +99,9 @@ Create a debug Zone by passing the debug function a timeout in milliseconds:
 var debug = require("can-zone/debug");
 var Zone = require("can-zone");
 
-new Zone({
-	plugins: [
-		debug(5000)
-	]
-});
+new Zone([
+	debug(5000)
+[);
 ```
 
 ## debug(timeoutZone)
@@ -108,10 +116,27 @@ var Zone = require("can-zone");
 var timeoutZone = timeout(5000);
 var debugZone = debug(timeoutZone);
 
-new Zone({
-	plugins: [
-		timeoutZone,
-		debugZone
-	]
-});
+new Zone([
+	timeoutZone,
+	debugZone
+]);
 ```
+
+## Break on timeout
+
+The default behavior of the debug zone is to store stack traces on `zone.data.debugInfo`. Some times it is easier to actually step into the code that is running. You can enable this behavior by setting the `break` option like so:
+
+```js
+var Zone = require("can-zone");
+var debug = require("can-zone/debug");
+
+var zone = new Zone([
+	debug(5000, { break: true });
+]);
+```
+
+When the zone times out you'll dropped into this breakpoint:
+
+<img alt="Break on timeout" style="max-width:100%;" src="https://user-images.githubusercontent.com/361671/32962443-6eb478d8-cb9a-11e7-9f88-f60ff5712f01.png"/>
+
+As the comment says, you can step into the proceeding function to find the code that is responsible for the zone's run promise not completing.

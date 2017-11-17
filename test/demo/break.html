@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<title>{break:true} Demo</title>
+
+<script src="../../node_modules/steal/steal.js" main="@empty"></script>
+<script type="steal-module">
+	var Zone = require("can-zone");
+	var debug = require("can-zone/debug");
+
+	var zone = new Zone([
+		debug(5000, { break: true })
+	]);
+
+	zone.run(function(){
+		doWork();
+	})
+	.then(function(){
+		console.log("DONE!");
+	})
+	.catch(function(errors){
+		console.error(`Timeout of ${errors.timeout}`);
+	})
+
+	function doWork() {
+		var foo = "bar";
+		var baz = "qux";
+		setTimeout(doWork, 500);
+	}
+</script>

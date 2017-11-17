@@ -44,7 +44,7 @@
 	wrapAll(g);
 
 	if(g.Promise) {
-		monitor(g, "Promise", "Promise.prototype.then");
+		monitor(g, "Promise", "Promise.prototype.then", g);
 	}
 
 	function extract(obj, prop) {
@@ -107,7 +107,7 @@
 		object[property] = wrappedFn;
 	}
 
-	function monitor(object, property, thingToRewrap) {
+	function monitor(object, property, thingToRewrap, global) {
 		var current = object[property];
 
 		Object.defineProperty(object, property, {
@@ -122,8 +122,8 @@
 					var results = extract(object, thingToRewrap);
 					var localObject = results[0];
 					var localProperty = results[1];
-					wrapInZone(localObject, localProperty);
-					monitor(object, property, thingToRewrap);
+					wrapInZone(localObject, localProperty, null, global);
+					monitor(object, property, thingToRewrap, global);
 				}
 			}
 		});

@@ -42,6 +42,59 @@ describe("Debug Zone", function(){
 		});
 	});
 
+	describe("break: true", function(){
+		before(function(){
+			debugZone._testing = true;
+		});
+
+		after(function(){
+			debugZone._testing = false;
+		});
+
+		it("Sets a breakpoint", function(done){
+			var num = 0;
+			var checkTimeout = function(){
+				var timedOut = false;
+				// Wait for the timeout, then count up to 5 afterTasks.
+				return {
+					beforeTimeout: function(){
+						timedOut = true;
+					},
+					afterTask: function(){
+						var zone = this;
+						if(timedOut) {
+							num++;
+							if(num === 5) {
+								zone.end();
+							}
+						}
+					}
+				};
+			};
+
+			new Zone([
+				debugZone(100, { break: true }),
+				checkTimeout
+			])
+			.run(function(){
+				// An infinite loop
+				function doWork() {
+					setTimeout(doWork, 20);
+				}
+				doWork();
+			})
+			.then(function(){
+				assert.equal(num, 5, "Tasks kept going even after the timeout");
+			})
+			.then(function(){
+				// Wait another 20, the inner setTimeout to fire.
+				setTimeout(function(){
+					done();
+				}, 20);
+			}, done);
+		});
+	});
+
 	it("Gives you a stack trace", function(done){
 		var zone = new Zone(debugZone(30));
 
@@ -107,4 +160,3 @@ describe("Debug Zone", function(){
 
 	});
 });
-

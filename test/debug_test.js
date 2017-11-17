@@ -52,7 +52,7 @@ describe("Debug Zone", function(){
 		});
 
 		it("Sets a breakpoint", function(done){
-			var num = 0;
+			var num = 0, end = false;
 			var checkTimeout = function(){
 				var timedOut = false;
 				// Wait for the timeout, then count up to 5 afterTasks.
@@ -65,6 +65,7 @@ describe("Debug Zone", function(){
 						if(timedOut) {
 							num++;
 							if(num === 5) {
+								console.log("ENDING");
 								zone.end();
 							}
 						}
@@ -79,7 +80,9 @@ describe("Debug Zone", function(){
 			.run(function(){
 				// An infinite loop
 				function doWork() {
-					setTimeout(doWork, 20);
+					if(!end) {
+						setTimeout(doWork, 20);
+					}
 				}
 				doWork();
 			})
@@ -89,6 +92,7 @@ describe("Debug Zone", function(){
 			.then(function(){
 				// Wait another 20, the inner setTimeout to fire.
 				setTimeout(function(){
+					end = true;
 					done();
 				}, 20);
 			}, done);

@@ -23,23 +23,33 @@
 		}
 	};
 
-	var props = [
-		"setTimeout",
-		"clearTimeout",
-		"requestAnimationFrame",
-		"Promise.prototype.then",
-		"XMLHttpRequest.prototype.send",
-		"Node.prototype.addEventListener",
-		"Node.prototype.removeEventListener",
-		"process.nextTick",
-		"setImmediate",
-		"clearImmediate",
-		{ prop: "MutationObserver", fn: function(MutationObserver){
-			return function(fn){
-				return new MutationObserver(fn);
-			};
-		} }
-	];
+	var props = Array.prototype.concat.call(
+		[
+			"setTimeout",
+			"clearTimeout",
+			"requestAnimationFrame",
+			"Promise.prototype.then",
+			"XMLHttpRequest.prototype.send",
+			"Node.prototype.addEventListener",
+			"Node.prototype.removeEventListener",
+			"process.nextTick",
+			"setImmediate",
+			"clearImmediate",
+			{
+				prop: "MutationObserver",
+				fn: function(MutationObserver) {
+					return function(fn) {
+						return new MutationObserver(fn);
+					};
+				}
+			}
+		],
+
+		// add all event handlers methods like `onclick` and `onload`.
+		getGlobalEventHandlersNames().map(function(name) {
+			return "HTMLElement.prototype." + name;
+		})
+	);
 
 	wrapAll(g);
 
@@ -79,7 +89,8 @@
 			prop = results[1];
 
 			// This happens if the environment doesn't support this property
-			if(!obj || !obj[prop]) {
+			// obj[prop] throws Illegal invocation when prop is an event handler
+			if(!isGlobalEventHandler(prop) && (!obj || !obj[prop])) {
 				return;
 			} else {
 				wrapped[key] = true;
@@ -90,21 +101,45 @@
 	}
 
 	function wrapInZone(object, property, fn, global) {
-		if(fn) {
-			fn = fn(object[property]);
-		} else {
-			fn = object[property];
-		}
-		var wrappedFn = function(){
+		var wrappedFn = function() {
 			var Zone = global.CanZone;
-			if(typeof Zone !== "undefined" && !!Zone.current) {
+			if (typeof Zone !== "undefined" && !!Zone.current) {
 				return Zone.tasks[property](fn, Zone).apply(this, arguments);
 			}
 
 			return fn.apply(this, arguments);
 		};
+
+		var descriptor = Object.getOwnPropertyDescriptor(object, property) || {};
+
+		if (isGlobalEventHandler(property)) {
+			fn = descriptor.set;
+			descriptor.set = wrappedFn;
+		} else {
+			fn = fn ? fn(object[property]) : object[property];
+			descriptor.value = wrappedFn;
+		}
+
+		Object.defineProperty(object, property, descriptor);
 		wrappedFn.zoneWrapped = true;
-		object[property] = wrappedFn;
+	}
+
+	function isGlobalEventHandler(property) {
+		return property.substr(0, 2) === "on";
+	}
+
+	// Returns an array of global event handlers names
+	// https://developer.mozilla.org/en-US/docs/Web/API/GlobalEventHandlers
+	function getGlobalEventHandlersNames() {
+		var names = [];
+
+		if (!isNode) {
+			names =  Object.getOwnPropertyNames(HTMLElement.prototype).filter(
+				isGlobalEventHandler
+			);
+		}
+
+		return names;
 	}
 
 	function monitor(object, property, thingToRewrap, global) {

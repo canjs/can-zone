@@ -884,6 +884,46 @@ if(isBrowser) {
 			.then(done, done);
 		});
 	});
+
+	describe("onclick event handler", function() {
+		it("is run within a zone", function() {
+			this.timeout(2000);
+
+			var el = document.createElement("div");
+
+			return new Zone()
+				.run(function() {
+					var id = setTimeout(function(){}, 10000);
+
+					el.onclick = function() {
+						assert.ok(Zone.current, "this is run in a zone");
+						clearTimeout(id);
+					};
+
+					el.click();
+				})
+				.then(function(){
+					assert.ok(true, "it finished");
+				});
+		});
+
+		it("setting property to null removes the handler", function() {
+			var el = document.createElement("div");
+
+			return new Zone().run(function(){
+				function handler() {
+					throw new Error("This should not run");
+				}
+
+				el.onclick = handler;
+				el.onclick = null;
+				el.click();
+			})
+			.then(function(data){
+				assert.ok(true, "it finished");
+			});
+		});
+	});
 }
 
 if(isNode) {

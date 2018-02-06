@@ -883,6 +883,19 @@ if(isBrowser) {
 			})
 			.then(done, done);
 		});
+
+		it("removeEventListener doesn't throw when removing a listener that doesn't exist", function(done){
+			var el = document.createElement("div");
+
+			new Zone().run(function(){
+				var handler = undefined;
+				el.removeEventListener("some-test", handler);
+			})
+			.then(function(data){
+				assert.ok(true, "it finished");
+			})
+			.then(done, done);
+		});
 	});
 
 	describe("onclick event handler", function() {

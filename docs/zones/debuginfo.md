@@ -5,10 +5,10 @@
 
 Each object has a shape of:
 
-```js
+```json
 {
 	"task": "setTimeout",
-	"stack": Error ...."
+	"stack": "Error: ..."
 }
 ```
 

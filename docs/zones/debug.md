@@ -30,7 +30,7 @@ var debug = require("can-zone/debug");
 var timeout = require("can-zone/timeout");
 
 var timeoutZone = timeout(5000);
-var debugZone = debug(timeoutZone):
+var debugZone = debug(timeoutZone);
 
 ...
 ```
@@ -65,7 +65,7 @@ zone.run(function(){
 
 	setTimeout(function(){}, 10000);
 
-}).catch(err){
+}).catch(function(err){
 
 	var debugInfo = zone.data.debugInfo;
 
@@ -101,7 +101,7 @@ var Zone = require("can-zone");
 
 new Zone([
 	debug(5000)
-[);
+]);
 ```
 
 ## debug(timeoutZone)
@@ -131,7 +131,7 @@ var Zone = require("can-zone");
 var debug = require("can-zone/debug");
 
 var zone = new Zone([
-	debug(5000, { break: true });
+	debug(5000, { break: true })
 ]);
 ```
 

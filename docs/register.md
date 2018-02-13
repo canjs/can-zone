@@ -5,7 +5,7 @@
 
 In order to do it's magic, [can-zone] has to register handlers for all of the common JavaScript async operations. If you have code (or a dependency with this code) that does:
 
-```javascript
+```js
 const st = setTimeout;
 ```
 
@@ -15,7 +15,7 @@ To work around this, **can-zone/register** is used as a script that you run befo
 
 ### In Node
 
-```javascript
+```js
 require("can-zone/register");
 ```
 
@@ -25,7 +25,7 @@ At the top of your entry-point script.
 
 You can either add a script tag above all others:
 
-```javascript
+```html
 <script src="node_modules/can-zone/register.js"></script>
 ```
 

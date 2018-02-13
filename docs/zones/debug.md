@@ -5,16 +5,16 @@
 
 Creates a new [can-zone.ZoneSpec] that can be provided to your Zone, timing out in `ms` (milliseconds).
 
-```javascript
+```js
 import Zone from "can-zone";
 import debug from "can-zone/debug";
 
 const zone = new Zone({
-  plugins: [debug(5000)]
+	plugins: [debug(5000)]
 })
-.catch(function(err){
-  const info = zone.data.debugInfo;
-});
+	.catch(function(err){
+		const info = zone.data.debugInfo;
+	});
 ```
 
 See the [can-zone/debug.DebugInfo] type for a list of properties.
@@ -25,7 +25,7 @@ See the [can-zone/debug.DebugInfo] type for a list of properties.
 
 Like the previous signature, but directly pass it a [can-zone/timeout timeout ZoneSpec] object that you create yourself.
 
-```javascript
+```js
 import debug from "can-zone/debug";
 import timeout from "can-zone/timeout";
 
@@ -55,7 +55,7 @@ The **debug** zone gives you information about which tasks failed to complete in
 
 When a timeout occurs the debug Zone will appending debug information to the Zone's [data](https://github.com/canjs/can-zone/blob/master/docs/data.md) property, which can be retrieved when the Zone's promise is rejected:
 
-```javascript
+```js
 import debug from "can-zone/debug";
 import Zone from "can-zone";
 
@@ -63,11 +63,11 @@ const zone = new Zone(debug(5000));
 
 zone.run(function(){
 
-  setTimeout(function(){}, 10000);
+	setTimeout(function(){}, 10000);
 
 }).catch(function(err){
 
-  const debugInfo = zone.data.debugInfo;
+	const debugInfo = zone.data.debugInfo;
 
 });
 ```
@@ -76,10 +76,10 @@ zone.run(function(){
 
 The **DebugInfo** is an array of objects that contain information about which tasks failed to complete. Each object has a shape of:
 
-```javascript
+```js
 {
-  "task": "setTimeout",
-  "stack": "Error /* ... */"
+	"task": "setTimeout",
+	"stack": "Error /* ... */"
 }
 ```
 
@@ -95,12 +95,12 @@ A *string* stack trace taken as a snapshot when the task was called. This allows
 
 Create a debug Zone by passing the debug function a timeout in milliseconds:
 
-```javascript
+```js
 import debug from "can-zone/debug";
 import Zone from "can-zone";
 
 new Zone([
-  debug(5000)
+	debug(5000)
 ]);
 ```
 
@@ -108,7 +108,7 @@ new Zone([
 
 Create a debug Zone by passing in a timeout Zone that was already created:
 
-```javascript
+```js
 import timeout from "can-zone/timeout";
 import debug from "can-zone/debug";
 import Zone from "can-zone";
@@ -117,8 +117,8 @@ const timeoutZone = timeout(5000);
 const debugZone = debug(timeoutZone);
 
 new Zone([
-  timeoutZone,
-  debugZone
+	timeoutZone,
+	debugZone
 ]);
 ```
 
@@ -126,12 +126,12 @@ new Zone([
 
 The default behavior of the debug zone is to store stack traces on `zone.data.debugInfo`. Some times it is easier to actually step into the code that is running. You can enable this behavior by setting the `break` option like so:
 
-```javascript
+```js
 import Zone from "can-zone";
 import debug from "can-zone/debug";
 
 const zone = new Zone([
-  debug(5000, { break: true })
+	debug(5000, { break: true })
 ]);
 ```
 

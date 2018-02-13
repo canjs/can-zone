@@ -7,12 +7,12 @@
 
 This is useful if there is async functionality other than what [we implement](#tasks). You might be using a library that has C++ bindings and doesn't go through the normal JavaScript async APIs.
 
-```javascript
+```js
 import Zone from "can-zone";
 import fs from "fs";
 
 fs.readFile("data.json", "utf8", Zone.waitFor(function(){
-  // We waited on this!
+	// We waited on this!
 }));
 ```
 

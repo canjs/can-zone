@@ -14,17 +14,17 @@
 
 Creates a new Zone with no additional overrides. Can then call [can-zone.prototype.run zone.run] to call a function within the Zone.
 
-```javascript
+```js
 import Zone from "can-zone";
 
 const zone = new Zone();
 
 zone.run(function(){
 
-  return "hello world";
+	return "hello world";
 
 }).then(function(data){
-  data.result // -> "hello world"
+	data.result // -> "hello world"
 });
 ```
 
@@ -34,22 +34,22 @@ zone.run(function(){
 
 Create a new Zone using the provided [can-zone.ZoneSpec] to configure the Zone. The following examples configures a Zone that will time out after 5 seconds.
 
-```javascript
+```js
 import Zone from "can-zone";
 
 const timeoutSpec = function(){
-  let timeoutId;
+	let timeoutId;
 
-  return {
-    created: function(){
-      timeoutId = setTimeout(function(){
-        Zone.error(new Error("This took too long!"));
-      }, 5000);
-    },
-    ended: function(){
-      clearTimeout(timeoutId);
-    }
-  };
+	return {
+		created: function(){
+			timeoutId = setTimeout(function(){
+				Zone.error(new Error("This took too long!"));
+			}, 5000);
+		},
+		ended: function(){
+			clearTimeout(timeoutId);
+		}
+	};
 };
 
 const zone = new Zone(timeoutSpec);
@@ -59,19 +59,19 @@ const zone = new Zone(timeoutSpec);
 
 These two are equivalent:
 
-```javascript
+```js
 new Zone({
-  created: function(){
+	created: function(){
 
-  }
+	}
 });
 
 new Zone(function(){
-  return {
-    created: function(){
+	return {
+		created: function(){
 
-    }
-  };
+		}
+	};
 });
 ```
 
@@ -100,34 +100,34 @@ For can-zone to work we have to override various task-creating functionality, th
 
 **can-zone** is a library that aids in tracking asynchronous calls in your application. To create a new Zone call it's constructor function with `new`:
 
-```javascript
+```js
 const zone = new Zone();
 ```
 
 This gives you a [can-zone Zone] from which you can run code using [can-zone.prototype.run zone.run]:
 
-```javascript
+```js
 import Zone from "can-zone";
 
 new Zone().run(function(){
 
-  setTimeout(function(){
+	setTimeout(function(){
     
-  }, 29);
+	}, 29);
 
-  setTimeout(function(){
+	setTimeout(function(){
     
-  }, 13);
+	}, 13);
 
-  const xhr = new XMLHttpRequest();
-  xhr.open("GET", "http://chat.donejs.com/api/messages");
-  xhr.onload = function(){
+	const xhr = new XMLHttpRequest();
+	xhr.open("GET", "http://chat.donejs.com/api/messages");
+	xhr.onload = function(){
     
-  };
-  xhr.send();
+	};
+	xhr.send();
 
 }).then(function(){
-  // All done!
+	// All done!
 });
 ```
 

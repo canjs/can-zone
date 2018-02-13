@@ -7,7 +7,7 @@
 
 The error object is included with the timeout module:
 
-```javascript
+```js
 import timeout from "can-zone/timeout";
 
 const TimeoutError = timeout.TimeoutError;

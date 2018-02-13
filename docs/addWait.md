@@ -7,13 +7,13 @@ Adds a wait to the [can-zone Zone]. Adding a wait will delay the Zone's Promise 
 
 Usually a corresponding [can-zone.prototype.removeWait] will be called to decrement the counter.
 
-```javascript
+```js
 new Zone().run(function(){
 
-  const zone = Zone.current;
+	const zone = Zone.current;
 
-  zone.addWait(); // counter at 1
-  zone.removeWait(); // counter at 0, Promise resolves
+	zone.addWait(); // counter at 1
+	zone.removeWait(); // counter at 0, Promise resolves
 
 }).then(function(){
 

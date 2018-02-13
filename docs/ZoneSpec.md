@@ -10,82 +10,82 @@ Using these hooks you can do things like create timers and override global varia
 
 	Called when the zone is first created, after all ZoneSpecs have been parsed. this is useful if you need to do setup behavior that covers the entire zone lifecycle.
 
-	```js
-	new Zone({
-		created: function(){
-			// Called as soon as `new Zone` is called
-		}
-	});
-	```
+	```javascript
+  new Zone({
+    created: function(){
+      // Called as soon as `new Zone` is called
+    }
+  });
+  ```
 
 	@option {function} beforeRun
 
 	Called immediately before the [can-zone.prototype.run] function is called.
 
-	```js
-	var zone = new Zone({
-		beforeRun: function(){
-			// Setup that needs to happen immediately before running
-			// the zone function
-		}
-	});
+	```javascript
+  const zone = new Zone({
+    beforeRun: function(){
+      // Setup that needs to happen immediately before running
+      // the zone function
+    }
+  });
 
-	zone.run(function() { ... });
-	```
+  zone.run(function() { /* ... */ });
+  ```
 
 	@option {function} afterRun
 
 	Called immediately after the [can-zone.prototype.run] function is called. This hook is useful for any cleanup that might need to be done after the run function is called, but before the zone's promise is resolved. You might use this if the promise is not waited on before performing some action.
 
-	```js
-	require("http").createServer(function(req, res){
-		var zone = new Zone(function(data){
-			var document = new SomeDocument();
+	```javascript
+  require("http").createServer(function(req, res){
+    const zone = new Zone(function(data){
+      const document = new SomeDocument();
 
-			return {
-				...
-				afterRun: function(){
-					data.html = document.documentElement.outerHTML;
-				}
-			};
-		});
+      return {
+        // ...
+        afterRun: function(){
+          data.html = document.documentElement.outerHTML;
+        }
+      };
+    });
 
-		zone.run(render); // We don't want to wait for all async stuff.
+    zone.run(render); // We don't want to wait for all async stuff.
 
-		res.write(zone.data.html);
-		res.end();
-	}).listen(8080);
-	```
+    res.write(zone.data.html);
+    res.end();
+  }).listen(8080);
+  ```
 
 	@option {function()} beforeTask
 
 	Called before each Task is called. Use this to override any globals you want to exist during the execution of the task:
 
-	```js
-	new Zone({
-		beforeTask: function(){
-			window.setTimeout = mySpecialSetTimeout;
-		}
-	});
-	```
+	```javascript
+  new Zone({
+    beforeTask: function(){
+      window.setTimeout = mySpecialSetTimeout;
+    }
+  });
+  ```
 
 	@option {function()} afterTask
 
 	Called *after* each Task completes. This hook is usually used to undo state that is setup in the __beforeTask__ hook.
 
-	```js
-	var oldSetTimeout;
+	```javascript
+  let oldSetTimeout;
 
-	new Zone({
-		beforeTask: function(){
-			oldSetTimeout = window.setTimeout;
-			window.setTimeout = mySpecialSetTimeout;
-		},
-		afterTask: function(){
-			window.setTimeout = oldSetTimeout;
-		}
-	});
-	```
+  new Zone({
+    beforeTask: function(){
+      oldSetTimeout = window.setTimeout;
+      window.setTimeout = mySpecialSetTimeout;
+    },
+    afterTask: function(){
+      window.setTimeout = oldSetTimeout;
+    }
+  });
+  ```
 
 	@option {function} ended
 
@@ -95,28 +95,28 @@ Using these hooks you can do things like create timers and override global varia
 
 	**hooks** allows you to specify custom hooks that your plugin calls. This is mostly to communicate between plugins that inherit each other.
 
-	```js
-	var barZone = {
-		created: function(){
-			this.execHook("beforeBar");
-		},
+	```javascript
+  const barZone = {
+    created: function(){
+      this.execHook("beforeBar");
+    },
 
-		hooks: ["beforeBar"]
-	};
+    hooks: ["beforeBar"]
+  };
 
-	var fooZone = {
-		beforeBar: function(){
-			// Called!
-		},
-		plugins: [barZone]
-	};
+  const fooZone = {
+    beforeBar: function(){
+      // Called!
+    },
+    plugins: [barZone]
+  };
 
-	new Zone({
-		plugins: [fooZone]
-	});
+  new Zone({
+    plugins: [fooZone]
+  });
 
-	zone.run(function() { ... });
-	```
+  zone.run(function() { /* ... */ });
+  ```
 
 	@option {Array<can-zone.ZoneSpec|can-zone.makeZoneSpec>} plugins
 
@@ -124,43 +124,43 @@ Using these hooks you can do things like create timers and override global varia
 
 	Similar to the [can-zone Zone] constructor you can either specify [can-zone.ZoneSpec] objects or functions that return ZoneSpec objects. The former gives you a closure specific to the Zone, which is often needed for variables. These two forms are equivalent:
 
-	```js
-	var specOne = {
-		created: function(){
+	```javascript
+  const specOne = {
+    created: function(){
 
-		}
-	};
+    }
+  };
 
-	var specTwo = function(){
-		return {
-			created: function(){
+  const specTwo = function(){
+    return {
+      created: function(){
 
-			}
-		}
-	};
+      }
+    }
+  };
 
-	var zone = new Zone({
-		plugins: [ specOne, specTwo ]
-	});
-	```
+  const zone = new Zone({
+    plugins: [ specOne, specTwo ]
+  });
+  ```
 
 	@option {Object} globals
 
 	Specify globals that should be set during each task within the Zone. The key is the name of the global that should be set, and the value is the object that will become the global.
 
-	```js
-	var realSetTimeout = window.setTimeout;
-	var mySetTimeout = function(){
-		// Do some stuff here..
-		return realSetTimeout.apply(this, arguments);
-	};
+	```javascript
+  const realSetTimeout = window.setTimeout;
+  const mySetTimeout = function(){
+    // Do some stuff here..
+    return realSetTimeout.apply(this, arguments);
+  };
 
-	var zone = new Zone({
-		globals: {
-			setTimeout: mySetTimeout,
-			"Promise.prototype.then": myThen
-		}
-	})
-	```
+  const zone = new Zone({
+    globals: {
+      setTimeout: mySetTimeout,
+      "Promise.prototype.then": myThen
+    }
+  });
+  ```
 
 	As shown above, a dot-separated string can be used as a key, to set a value on a global's property.

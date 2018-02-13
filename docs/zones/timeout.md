@@ -7,21 +7,21 @@ Creates a [can-zone.ZoneSpec] that you can use as a plugin for your [can-zone Zo
 
 If the Zone times out it's [can-zone.prototype.run run promise] will be rejected with a [can-zone/timeout.TimeoutError], a special error that also includes the number of milliseconds waited before timing out.
 
-```js
-var Zone = require("can-zone");
-var timeout = require("can-zone/timeout");
+```javascript
+import Zone from "can-zone";
+import timeout from "can-zone/timeout";
 
-var zone = new Zone({
-	plugins: [ timeout(5000) ]
+const zone = new Zone({
+  plugins: [ timeout(5000) ]
 });
 
 zone.run(function(){
-	setTimeout(function(){
+  setTimeout(function(){
 
-	}, 10000); // waiting over 5 sec
+  }, 10000); // waiting over 5 sec
 })
 .catch(function(err){
-	// Called because we exceeded the timeout.
+  // Called because we exceeded the timeout.
 });
 ```
 
@@ -39,26 +39,26 @@ The **timeout** zone is a function that takes a timeout in milliseconds.
 
 The Promise will reject with a special type of Error, a [can-zone/timeout.TimeoutError].
 
-```js
-var Zone = require("can-zone");
-var timeout = require("can-zone/timeout");
-var TimeoutError = timeout.TimeoutError;
+```javascript
+import Zone from "can-zone";
+import timeout from "can-zone/timeout";
+const TimeoutError = timeout.TimeoutError;
 
-var zone = new Zone({
-	plugins: [
-		timeout(2000)
-	]
+const zone = new Zone({
+  plugins: [
+    timeout(2000)
+  ]
 });
 
 zone.run(function(){
 
-	setTimeout(function(){
+  setTimeout(function(){
 
-	}, 5000);
+  }, 5000);
 
 }).then(null, function(err){
 
-	// err.timeout -> 2000
+  // err.timeout -> 2000
 
 });
 ```

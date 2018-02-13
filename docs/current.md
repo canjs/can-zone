@@ -5,14 +5,14 @@
 
 Represents the currently running [can-zone zone]. If the code using **Zone.current** is not running within a zone the value will be undefined.
 
-```js
-var Zone = require("can-zone");
+```javascript
+import Zone from "can-zone";
 
-var myZone = new Zone();
+const myZone = new Zone();
 
 myZone.run(function(){
 
-	Zone.current === myZone;
+  Zone.current === myZone;
 
 });
 ```

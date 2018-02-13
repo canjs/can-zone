@@ -9,16 +9,16 @@ Runs a function within a [can-zone Zone]. Calling run will set the Zone's intern
 
 @return {Promise<can-zone.prototype.data>} Returns a promise that will resolve with the Zone's [can-zone.prototype.data] object.
 
-```js
-var zone = new Zone();
+```javascript
+const zone = new Zone();
 
 zone.run(function(){
 
-	setTimeout(function(){
-		zone.data.foo = "bar";
-	});
+  setTimeout(function(){
+    zone.data.foo = "bar";
+  });
 
 }).then(function(data){
-	data.foo // -> "bar"
+  data.foo // -> "bar"
 });
 ```

@@ -10,9 +10,9 @@ import Zone from "can-zone";
 
 const myZone = new Zone();
 
-myZone.run(function(){
+myZone.run( function() {
 
 	Zone.current === myZone;
 
-});
+} );
 ```

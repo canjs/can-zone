@@ -11,6 +11,7 @@ The error object is included with the timeout module:
 import timeout from "can-zone/timeout";
 
 const TimeoutError = timeout.TimeoutError;
+
 // Maybe use this to check `instanceof`.
 ```
 

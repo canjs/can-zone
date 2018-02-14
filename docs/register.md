@@ -16,7 +16,7 @@ To work around this, **can-zone/register** is used as a script that you run befo
 ### In Node
 
 ```js
-require("can-zone/register");
+require( "can-zone/register" );
 ```
 
 At the top of your entry-point script.

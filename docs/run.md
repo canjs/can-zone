@@ -12,13 +12,13 @@ Runs a function within a [can-zone Zone]. Calling run will set the Zone's intern
 ```js
 const zone = new Zone();
 
-zone.run(function(){
+zone.run( function() {
 
-	setTimeout(function(){
+	setTimeout( function() {
 		zone.data.foo = "bar";
-	});
+	} );
 
-}).then(function(data){
-	data.foo // -> "bar"
-});
+} ).then( function( data ) {
+	data.foo; // -> "bar"
+} );
 ```

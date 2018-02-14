@@ -19,13 +19,13 @@ import Zone from "can-zone";
 
 const zone = new Zone();
 
-zone.run(function(){
+zone.run( function() {
 
 	return "hello world";
 
-}).then(function(data){
-	data.result // -> "hello world"
-});
+} ).then( function( data ) {
+	data.result; // -> "hello world"
+} );
 ```
 
 *Note: See the [can-zone/register docs](https://github.com/canjs/can-zone/blob/master/docs/register.md) about ensuring can-zone is registered properly.*
@@ -37,22 +37,22 @@ Create a new Zone using the provided [can-zone.ZoneSpec] to configure the Zone. 
 ```js
 import Zone from "can-zone";
 
-const timeoutSpec = function(){
+const timeoutSpec = function() {
 	let timeoutId;
 
 	return {
-		created: function(){
-			timeoutId = setTimeout(function(){
-				Zone.error(new Error("This took too long!"));
-			}, 5000);
+		created: function() {
+			timeoutId = setTimeout( function() {
+				Zone.error( new Error( "This took too long!" ) );
+			}, 5000 );
 		},
-		ended: function(){
-			clearTimeout(timeoutId);
+		ended: function() {
+			clearTimeout( timeoutId );
 		}
 	};
 };
 
-const zone = new Zone(timeoutSpec);
+const zone = new Zone( timeoutSpec );
 ```
 
 @param {can-zone.ZoneSpec|can-zone.makeZoneSpec} zoneSpec A [can-zone.ZoneSpec] object or a [can-zone.makeZoneSpec function that returns] a ZoneSpec object.
@@ -60,19 +60,19 @@ const zone = new Zone(timeoutSpec);
 These two are equivalent:
 
 ```js
-new Zone({
-	created: function(){
+new Zone( {
+	created: function() {
 
 	}
-});
+} );
 
-new Zone(function(){
+new Zone( function() {
 	return {
-		created: function(){
+		created: function() {
 
 		}
 	};
-});
+} );
 ```
 
 The latter form is useful so that you have a closure specific to that [can-zone Zone].
@@ -109,26 +109,27 @@ This gives you a [can-zone Zone] from which you can run code using [can-zone.pro
 ```js
 import Zone from "can-zone";
 
-new Zone().run(function(){
+new Zone().run( function() {
 
-	setTimeout(function(){
-    
-	}, 29);
+	setTimeout( function() {
 
-	setTimeout(function(){
-    
-	}, 13);
+	}, 29 );
+
+	setTimeout( function() {
+
+	}, 13 );
 
 	const xhr = new XMLHttpRequest();
-	xhr.open("GET", "http://chat.donejs.com/api/messages");
-	xhr.onload = function(){
-    
+	xhr.open( "GET", "http://chat.donejs.com/api/messages" );
+	xhr.onload = function() {
+
 	};
 	xhr.send();
 
-}).then(function(){
+} ).then( function() {
+
 	// All done!
-});
+} );
 ```
 
 The function you provide to [can-zone.prototype.run] will be run within the Zone. This means any calls to asynchronous functions (in this example `setTimeout`)	will be waited on.

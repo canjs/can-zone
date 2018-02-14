@@ -11,63 +11,66 @@ Using these hooks you can do things like create timers and override global varia
 	Called when the zone is first created, after all ZoneSpecs have been parsed. this is useful if you need to do setup behavior that covers the entire zone lifecycle.
 
 	```js
-new Zone({
-	created: function(){
+new Zone( {
+	created: function() {
+
 		// Called as soon as `new Zone` is called
 	}
-});
-  ```
+} );
+```
 
 	@option {function} beforeRun
 
 	Called immediately before the [can-zone.prototype.run] function is called.
 
 	```js
-const zone = new Zone({
-	beforeRun: function(){
+const zone = new Zone( {
+	beforeRun: function() {
+
 		// Setup that needs to happen immediately before running
 		// the zone function
 	}
-});
+} );
 
-zone.run(function() { /* ... */ });
-  ```
+zone.run( function() { /* ... */ } );
+```
 
 	@option {function} afterRun
 
 	Called immediately after the [can-zone.prototype.run] function is called. This hook is useful for any cleanup that might need to be done after the run function is called, but before the zone's promise is resolved. You might use this if the promise is not waited on before performing some action.
 
 	```js
-require("http").createServer(function(req, res){
-	const zone = new Zone(function(data){
+require( "http" ).createServer( function( req, res ) {
+	const zone = new Zone( function( data ) {
 		const document = new SomeDocument();
 
 		return {
+
 			// ...
-			afterRun: function(){
+			afterRun: function() {
 				data.html = document.documentElement.outerHTML;
 			}
 		};
-	});
+	} );
 
-	zone.run(render); // We don't want to wait for all async stuff.
+	zone.run( render ); // We don't want to wait for all async stuff.
 
-	res.write(zone.data.html);
+	res.write( zone.data.html );
 	res.end();
-}).listen(8080);
-  ```
+} ).listen( 8080 );
+```
 
 	@option {function()} beforeTask
 
 	Called before each Task is called. Use this to override any globals you want to exist during the execution of the task:
 
 	```js
-new Zone({
-	beforeTask: function(){
+new Zone( {
+	beforeTask: function() {
 		window.setTimeout = mySpecialSetTimeout;
 	}
-});
-  ```
+} );
+```
 
 	@option {function()} afterTask
 
@@ -76,16 +79,16 @@ new Zone({
 	```js
 let oldSetTimeout;
 
-new Zone({
-	beforeTask: function(){
+new Zone( {
+	beforeTask: function() {
 		oldSetTimeout = window.setTimeout;
 		window.setTimeout = mySpecialSetTimeout;
 	},
-	afterTask: function(){
+	afterTask: function() {
 		window.setTimeout = oldSetTimeout;
 	}
-});
-  ```
+} );
+```
 
 	@option {function} ended
 
@@ -97,26 +100,27 @@ new Zone({
 
 	```js
 const barZone = {
-	created: function(){
-		this.execHook("beforeBar");
+	created: function() {
+		this.execHook( "beforeBar" );
 	},
 
-	hooks: ["beforeBar"]
+	hooks: [ "beforeBar" ]
 };
 
 const fooZone = {
-	beforeBar: function(){
+	beforeBar: function() {
+
 		// Called!
 	},
-	plugins: [barZone]
+	plugins: [ barZone ]
 };
 
-new Zone({
-	plugins: [fooZone]
-});
+new Zone( {
+	plugins: [ fooZone ]
+} );
 
-zone.run(function() { /* ... */ });
-  ```
+zone.run( function() { /* ... */ } );
+```
 
 	@option {Array<can-zone.ZoneSpec|can-zone.makeZoneSpec>} plugins
 
@@ -126,23 +130,23 @@ zone.run(function() { /* ... */ });
 
 	```js
 const specOne = {
-	created: function(){
+	created: function() {
 
 	}
 };
 
-const specTwo = function(){
+const specTwo = function() {
 	return {
-		created: function(){
+		created: function() {
 
 		}
-	}
+	};
 };
 
-const zone = new Zone({
+const zone = new Zone( {
 	plugins: [ specOne, specTwo ]
-});
-  ```
+} );
+```
 
 	@option {Object} globals
 
@@ -150,17 +154,18 @@ const zone = new Zone({
 
 	```js
 const realSetTimeout = window.setTimeout;
-const mySetTimeout = function(){
+const mySetTimeout = function() {
+
 	// Do some stuff here..
-	return realSetTimeout.apply(this, arguments);
+	return realSetTimeout.apply( this, arguments );
 };
 
-const zone = new Zone({
+const zone = new Zone( {
 	globals: {
 		setTimeout: mySetTimeout,
 		"Promise.prototype.then": myThen
 	}
-});
-  ```
+} );
+```
 
 	As shown above, a dot-separated string can be used as a key, to set a value on a global's property.

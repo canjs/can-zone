@@ -13,8 +13,8 @@ const zone = new Zone();
 const obj = new SomeObject();
 
 // This is only done when the event.status is 3
-obj.onprogress = function(ev){
-	if(ev.status === 3) {
+obj.onprogress = function( ev ) {
+	if ( ev.status === 3 ) {
 		zone.removeWait();
 	}
 };

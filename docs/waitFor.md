@@ -11,9 +11,10 @@ This is useful if there is async functionality other than what [we implement](#t
 import Zone from "can-zone";
 import fs from "fs";
 
-fs.readFile("data.json", "utf8", Zone.waitFor(function(){
+fs.readFile( "data.json", "utf8", Zone.waitFor( function() {
+
 	// We waited on this!
-}));
+} ) );
 ```
 
 @param {function} fn

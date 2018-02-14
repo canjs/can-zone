@@ -9,12 +9,12 @@ Creates a new [can-zone.ZoneSpec] that can be provided to your Zone, timing out 
 import Zone from "can-zone";
 import debug from "can-zone/debug";
 
-const zone = new Zone({
-	plugins: [debug(5000)]
-})
-	.catch(function(err){
+const zone = new Zone( {
+	plugins: [ debug( 5000 ) ]
+} )
+	.catch( function( err ) {
 		const info = zone.data.debugInfo;
-	});
+	} );
 ```
 
 See the [can-zone/debug.DebugInfo] type for a list of properties.
@@ -29,8 +29,8 @@ Like the previous signature, but directly pass it a [can-zone/timeout timeout Zo
 import debug from "can-zone/debug";
 import timeout from "can-zone/timeout";
 
-const timeoutZone = timeout(5000);
-const debugZone = debug(timeoutZone);
+const timeoutZone = timeout( 5000 );
+const debugZone = debug( timeoutZone );
 
 // ...
 ```
@@ -59,17 +59,17 @@ When a timeout occurs the debug Zone will appending debug information to the Zon
 import debug from "can-zone/debug";
 import Zone from "can-zone";
 
-const zone = new Zone(debug(5000));
+const zone = new Zone( debug( 5000 ) );
 
-zone.run(function(){
+zone.run( function() {
 
-	setTimeout(function(){}, 10000);
+	setTimeout( function() {}, 10000 );
 
-}).catch(function(err){
+} ).catch( function( err ) {
 
 	const debugInfo = zone.data.debugInfo;
 
-});
+} );
 ```
 
 ## DebugInfo
@@ -99,9 +99,9 @@ Create a debug Zone by passing the debug function a timeout in milliseconds:
 import debug from "can-zone/debug";
 import Zone from "can-zone";
 
-new Zone([
-	debug(5000)
-]);
+new Zone( [
+	debug( 5000 )
+] );
 ```
 
 ## debug(timeoutZone)
@@ -113,13 +113,13 @@ import timeout from "can-zone/timeout";
 import debug from "can-zone/debug";
 import Zone from "can-zone";
 
-const timeoutZone = timeout(5000);
-const debugZone = debug(timeoutZone);
+const timeoutZone = timeout( 5000 );
+const debugZone = debug( timeoutZone );
 
-new Zone([
+new Zone( [
 	timeoutZone,
 	debugZone
-]);
+] );
 ```
 
 ## Break on timeout
@@ -130,9 +130,9 @@ The default behavior of the debug zone is to store stack traces on `zone.data.de
 import Zone from "can-zone";
 import debug from "can-zone/debug";
 
-const zone = new Zone([
-	debug(5000, { break: true })
-]);
+const zone = new Zone( [
+	debug( 5000, { break: true } )
+] );
 ```
 
 When the zone times out you'll dropped into this breakpoint:

@@ -8,9 +8,10 @@
 The error object is included with the timeout module:
 
 ```js
-var timeout = require("can-zone/timeout");
+import timeout from "can-zone/timeout";
 
-var TimeoutError = timeout.TimeoutError;
+const TimeoutError = timeout.TimeoutError;
+
 // Maybe use this to check `instanceof`.
 ```
 

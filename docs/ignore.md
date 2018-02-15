@@ -6,20 +6,20 @@
 Creates a function that, when called, will not track any calls. This might be needed if you are calling code that does unusual things, like using setTimeout recursively indefinitely.
 
 ```js
-var Zone = require("can-zone");
+import Zone from "can-zone";
 
-new Zone().run(function(){
-	function recursive(){
-		setTimeout(function(){
+new Zone().run( function() {
+	function recursive() {
+		setTimeout( function() {
 			recursive();
-		}, 20000);
+		}, 20000 );
 	}
 
-	var fn = Zone.ignore(recursive);
+	const fn = Zone.ignore( recursive );
 
 	// This call will not be waited on.
 	fn();
-});
+} );
 ```
 
 @param {function} fn A function that contains calls to asynchronous functions that are needing to be ignored.
@@ -35,11 +35,12 @@ new Zone().run(function(){
 Provide Zone.ignore a function and it will return a function that can be called in it's place.
 
 ```js
-var Zone = require("can-zone");
+import Zone from "can-zone";
 
-var fn = Zone.ignore(function(){
+const fn = Zone.ignore( function() {
+
 	// do any asynchronous stuff here
-});
+} );
 
 fn(); // waits ignored
 ```

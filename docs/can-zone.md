@@ -15,17 +15,17 @@
 Creates a new Zone with no additional overrides. Can then call [can-zone.prototype.run zone.run] to call a function within the Zone.
 
 ```js
-var Zone = require("can-zone");
+import Zone from "can-zone";
 
-var zone = new Zone();
+const zone = new Zone();
 
-zone.run(function(){
+zone.run( function() {
 
 	return "hello world";
 
-}).then(function(data){
-	data.result // -> "hello world"
-});
+} ).then( function( data ) {
+	data.result; // -> "hello world"
+} );
 ```
 
 *Note: See the [can-zone/register docs](https://github.com/canjs/can-zone/blob/master/docs/register.md) about ensuring can-zone is registered properly.*
@@ -35,24 +35,24 @@ zone.run(function(){
 Create a new Zone using the provided [can-zone.ZoneSpec] to configure the Zone. The following examples configures a Zone that will time out after 5 seconds.
 
 ```js
-var Zone = require("can-zone");
+import Zone from "can-zone";
 
-var timeoutSpec = function(){
-	var timeoutId;
+const timeoutSpec = function() {
+	let timeoutId;
 
 	return {
-		created: function(){
-			timeoutId = setTimeout(function(){
-				Zone.error(new Error("This took too long!"));
-			}, 5000);
+		created: function() {
+			timeoutId = setTimeout( function() {
+				Zone.error( new Error( "This took too long!" ) );
+			}, 5000 );
 		},
-		ended: function(){
-			clearTimeout(timeoutId);
+		ended: function() {
+			clearTimeout( timeoutId );
 		}
 	};
 };
 
-var zone = new Zone(timeoutSpec);
+const zone = new Zone( timeoutSpec );
 ```
 
 @param {can-zone.ZoneSpec|can-zone.makeZoneSpec} zoneSpec A [can-zone.ZoneSpec] object or a [can-zone.makeZoneSpec function that returns] a ZoneSpec object.
@@ -60,19 +60,19 @@ var zone = new Zone(timeoutSpec);
 These two are equivalent:
 
 ```js
-new Zone({
-	created: function(){
+new Zone( {
+	created: function() {
 
 	}
-});
+} );
 
-new Zone(function(){
+new Zone( function() {
 	return {
-		created: function(){
+		created: function() {
 
 		}
 	};
-});
+} );
 ```
 
 The latter form is useful so that you have a closure specific to that [can-zone Zone].
@@ -101,34 +101,35 @@ For can-zone to work we have to override various task-creating functionality, th
 **can-zone** is a library that aids in tracking asynchronous calls in your application. To create a new Zone call it's constructor function with `new`:
 
 ```js
-var zone = new Zone();
+const zone = new Zone();
 ```
 
 This gives you a [can-zone Zone] from which you can run code using [can-zone.prototype.run zone.run]:
 
 ```js
-var Zone = require("can-zone");
+import Zone from "can-zone";
 
-new Zone().run(function(){
+new Zone().run( function() {
 
-	setTimeout(function(){
-		
-	}, 29);
+	setTimeout( function() {
 
-	setTimeout(function(){
-		
-	}, 13);
+	}, 29 );
 
-	var xhr = new XMLHttpRequest();
-	xhr.open("GET", "http://chat.donejs.com/api/messages");
-	xhr.onload = function(){
-		
+	setTimeout( function() {
+
+	}, 13 );
+
+	const xhr = new XMLHttpRequest();
+	xhr.open( "GET", "http://chat.donejs.com/api/messages" );
+	xhr.onload = function() {
+
 	};
 	xhr.send();
 
-}).then(function(){
+} ).then( function() {
+
 	// All done!
-});
+} );
 ```
 
 The function you provide to [can-zone.prototype.run] will be run within the Zone. This means any calls to asynchronous functions (in this example `setTimeout`)	will be waited on.

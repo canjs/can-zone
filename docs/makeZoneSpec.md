@@ -10,35 +10,35 @@ Using a function rather than a ZoneSpec object gives you a closure where you can
 This examples wraps [document.createElement](https://developer.mozilla.org/en-US/docs/Web/API/Document/createElement) to keep count of how many elements are created, and appends the count to [can-zone.prototype.data] when the Zone ends.
 
 ```js
-var mySpec = function(data){
-	var realCreateElement,
-		count = 0;
+const mySpec = function( data ) {
+	let realCreateElement, count = 0;
 
 	return {
-		beforeTask: function(){
+		beforeTask: function() {
 			realCreateElement = document.createElement;
-			document.createElement = function(){
+			document.createElement = function() {
 				count++;
-				return realCreateElement.apply(this, arguments);
+				return realCreateElement.apply( this, arguments );
 			};
 		},
-		afterTask: function(){
+		afterTask: function() {
 			document.createElement = realCreateElement;
 		},
-		ended: function(){
+		ended: function() {
 			data.elementsCreated = count;
 		}
 	};
 };
 
-var zone = new Zone(mySpec);
+const zone = new Zone( mySpec );
 
-zone.run(function(){
+zone.run( function() {
+
 	// Do stuff here
-})
-.then(function(data){
-	data.elementsCreated; // -> 5
-});
+} )
+	.then( function( data ) {
+		data.elementsCreated; // -> 5
+	} );
 ```
 
 @return {can-zone.ZoneSpec} A [can-zone.ZoneSpec]

@@ -6,15 +6,15 @@
 Creates a new [can-zone.ZoneSpec] that can be provided to your Zone, timing out in `ms` (milliseconds).
 
 ```js
-var Zone = require("can-zone");
-var debug = require("can-zone/debug");
+import Zone from "can-zone";
+import debug from "can-zone/debug";
 
-var zone = new Zone({
-	plugins: [debug(5000)]
-})
-.catch(function(err){
-	var info = zone.data.debugInfo;
-});
+const zone = new Zone( {
+	plugins: [ debug( 5000 ) ]
+} )
+	.catch( function( err ) {
+		const info = zone.data.debugInfo;
+	} );
 ```
 
 See the [can-zone/debug.DebugInfo] type for a list of properties.
@@ -26,13 +26,13 @@ See the [can-zone/debug.DebugInfo] type for a list of properties.
 Like the previous signature, but directly pass it a [can-zone/timeout timeout ZoneSpec] object that you create yourself.
 
 ```js
-var debug = require("can-zone/debug");
-var timeout = require("can-zone/timeout");
+import debug from "can-zone/debug";
+import timeout from "can-zone/timeout";
 
-var timeoutZone = timeout(5000);
-var debugZone = debug(timeoutZone):
+const timeoutZone = timeout( 5000 );
+const debugZone = debug( timeoutZone );
 
-...
+// ...
 ```
 
 @param {can-zone/timeout} timeoutZone A [can-zone.ZoneSpec] created using the timeout plugin.
@@ -56,20 +56,20 @@ The **debug** zone gives you information about which tasks failed to complete in
 When a timeout occurs the debug Zone will appending debug information to the Zone's [data](https://github.com/canjs/can-zone/blob/master/docs/data.md) property, which can be retrieved when the Zone's promise is rejected:
 
 ```js
-var debug = require("can-zone/debug");
-var Zone = require("can-zone");
+import debug from "can-zone/debug";
+import Zone from "can-zone";
 
-var zone = new Zone(debug(5000));
+const zone = new Zone( debug( 5000 ) );
 
-zone.run(function(){
+zone.run( function() {
 
-	setTimeout(function(){}, 10000);
+	setTimeout( function() {}, 10000 );
 
-}).catch(err){
+} ).catch( function( err ) {
 
-	var debugInfo = zone.data.debugInfo;
+	const debugInfo = zone.data.debugInfo;
 
-});
+} );
 ```
 
 ## DebugInfo
@@ -79,7 +79,7 @@ The **DebugInfo** is an array of objects that contain information about which ta
 ```js
 {
 	"task": "setTimeout",
-	"stack": "Error ...."
+	"stack": "Error /* ... */"
 }
 ```
 
@@ -96,12 +96,12 @@ A *string* stack trace taken as a snapshot when the task was called. This allows
 Create a debug Zone by passing the debug function a timeout in milliseconds:
 
 ```js
-var debug = require("can-zone/debug");
-var Zone = require("can-zone");
+import debug from "can-zone/debug";
+import Zone from "can-zone";
 
-new Zone([
-	debug(5000)
-[);
+new Zone( [
+	debug( 5000 )
+] );
 ```
 
 ## debug(timeoutZone)
@@ -109,17 +109,17 @@ new Zone([
 Create a debug Zone by passing in a timeout Zone that was already created:
 
 ```js
-var timeout = require("can-zone/timeout");
-var debug = require("can-zone/debug");
-var Zone = require("can-zone");
+import timeout from "can-zone/timeout";
+import debug from "can-zone/debug";
+import Zone from "can-zone";
 
-var timeoutZone = timeout(5000);
-var debugZone = debug(timeoutZone);
+const timeoutZone = timeout( 5000 );
+const debugZone = debug( timeoutZone );
 
-new Zone([
+new Zone( [
 	timeoutZone,
 	debugZone
-]);
+] );
 ```
 
 ## Break on timeout
@@ -127,12 +127,12 @@ new Zone([
 The default behavior of the debug zone is to store stack traces on `zone.data.debugInfo`. Some times it is easier to actually step into the code that is running. You can enable this behavior by setting the `break` option like so:
 
 ```js
-var Zone = require("can-zone");
-var debug = require("can-zone/debug");
+import Zone from "can-zone";
+import debug from "can-zone/debug";
 
-var zone = new Zone([
-	debug(5000, { break: true });
-]);
+const zone = new Zone( [
+	debug( 5000, { break: true } )
+] );
 ```
 
 When the zone times out you'll dropped into this breakpoint:

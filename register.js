@@ -118,6 +118,7 @@
 		} else {
 			fn = fn ? fn(object[property]) : object[property];
 			descriptor.value = wrappedFn;
+			descriptor.writable = true;	// fix: allow third-party libraries to also wrap functions
 		}
 
 		Object.defineProperty(object, property, descriptor);

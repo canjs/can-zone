@@ -598,6 +598,14 @@ if(isBrowser) {
 			}).then(done);
 		});
 
+		it("Using cancelAnimationFrame", function(done){
+			new Zone().run(function() {
+				let id = requestAnimationFrame(function(){});
+				cancelAnimationFrame(id);
+			}).then(function(){
+				assert.ok(true, "Finished without timing out");
+			}).then(done);
+		});
 	});
 } else {
 	describe("requestAnimationFrame", function(){

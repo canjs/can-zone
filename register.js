@@ -11,11 +11,6 @@
 		module.exports = wrapAll;
 	}
 
-	var wrapped = g.__canZoneWrapped;
-	if(!wrapped) {
-		wrapped = g.__canZoneWrapped = {};
-	}
-
 	var forEach = Array.prototype.forEach || function(cb){
 		var i = 0, len = this.length;
 		for(; i < len; i++) {
@@ -28,6 +23,7 @@
 			"setTimeout",
 			"clearTimeout",
 			"requestAnimationFrame",
+			"cancelAnimationFrame",
 			"Promise.prototype.then",
 			"XMLHttpRequest.prototype.send",
 			"Node.prototype.addEventListener",
@@ -70,6 +66,12 @@
 
 	function wrapAll(globalObj){
 		var global = globalObj || g;
+
+		var wrapped = global.__canZoneWrapped;
+		if(!wrapped) {
+			wrapped = global.__canZoneWrapped = {};
+		}
+
 		forEach.call(props, function(prop){
 			var fn;
 			if(typeof prop === "object") {

@@ -906,6 +906,49 @@ if(isBrowser) {
 		});
 	});
 
+	describe("when third-party library (i.e. affirm) also wraps events (i.e. addEventListener) in strict-mode", function(){
+		it("should execute can-zone and third-party function", function(done){
+			"use strict";	// enable throwing TypeError-exception when assigning to non-writable property
+
+			// store copy of original-addEventListener
+			var orig = Node.prototype.addEventListener;
+
+			// used to check that original function executed
+			var originalCounter = 0;
+			// used to check that third-party function executed
+			var thirdPartyCounter = 0;
+
+			// create a Node object
+			var el = document.createElement("div");
+
+			// third-party library wrapping addEventListener()
+			el.addEventListener = function(event, func, useCapture){
+				// increment counter to check that third-party funciton executed
+				thirdPartyCounter++;
+				// third-party library calls original-addEventListener
+				orig.call(this, event, func, useCapture);
+			};
+
+			new Zone().run(function(){
+				// canjs-app setting-up a addEventListener-event
+				el.addEventListener("some-event", function(){
+					// increment counter to check that original funciton executed
+					originalCounter++;
+				});
+				el.dispatchEvent(new Event("some-event"));
+			}).then(function(data){
+				// original-addEventListener worked
+				assert(originalCounter === 1, "original worked");
+				// third-party function worked
+				assert(thirdPartyCounter === 1, "third-party worked");
+
+				// restore addEventListener to original-addEventListener
+				Node.prototype.addEventListener = orig;
+			})
+			.then(done, done);
+		});
+	});
+
 	describe("onclick event handler", function() {
 		it("is run within a zone", function() {
 			this.timeout(2000);

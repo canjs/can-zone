@@ -169,6 +169,61 @@ if(env.isNode) {
 			});
 		});
 
+		describe("URLs relative to server (i.e. done-ssr proxy-request)", function(){
+			beforeEach(function(){
+				this.oldOpen = XMLHttpRequest.prototype.open;
+				XMLHttpRequest.prototype.open = function(){};
+				g.XHR_CACHE = [
+					{ request: { url: "foo://bar/abc" },
+						response: { responseText: '{"foo": "bar"}',
+							headers: "application/json" } },
+					{ request: { url: "foo://bar/abc/def" },
+						response: { responseText: '{"baz": "qux"}',
+							headers: "application/json" } }
+				];
+			});
+
+			afterEach(function(){
+				XMLHttpRequest.prototype.open = this.oldOpen;
+				delete g.XHR_CACHE;
+			});
+
+			it("Loads data from the cache", function(done){
+				function app(){
+					assert.equal(g.XHR_CACHE.length, 2,
+								 "There are 2 items in the cache");
+
+					var first = new XMLHttpRequest();
+					// url that has one slash
+					first.open("GET", "/abc");
+					first.onload = function(){
+						Zone.current.data.first = JSON.parse(first.responseText);
+						assert.equal(g.XHR_CACHE.length, 1,
+									 "There is one item in the cache");
+					};
+					first.send();
+
+					setTimeout(function(){
+						var second = new XMLHttpRequest();
+					// url that has two slashes
+					second.open("GET", "/abc/def");
+						second.onload = function(){
+							var xhr = second;
+							Zone.current.data.second = JSON.parse(xhr.responseText);
+							assert.equal(g.XHR_CACHE.length, 0,
+										 "The cache is empty");
+						};
+						second.send();
+					}, 30);
+				}
+
+				new Zone(xhrZone).run(app).then(function(data){
+					assert.equal(data.first.foo, "bar", "got the first response");
+					assert.equal(data.second.baz, "qux", "got the second response");
+				}).then(done, done);
+			});
+		});
+
 		describe("POST with multiple requests from the same URL", function(){
 			beforeEach(function(){
 				this.oldOpen = XMLHttpRequest.prototype.open;

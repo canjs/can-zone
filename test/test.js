@@ -3,6 +3,7 @@ var Zone = require("../lib/zone");
 var env = require("../lib/env");
 
 var isNode = env.isNode;
+var isWorker = env.isWorker;
 
 if(!isNode) {
 	require("steal-mocha");
@@ -568,7 +569,7 @@ describe("nested setTimeouts", function(){
 
 });
 
-if(isBrowser) {
+if(isBrowser && !isWorker) {
 	describe("requestAnimationFrame", function(){
 		it("setTimeout with requestAnimationFrame", function(done){
 			var results = [];
@@ -850,7 +851,7 @@ if(supportsMutationObservers) {
 	});
 }
 
-if(isBrowser) {
+if(isBrowser && !isWorker) {
 	describe("addEventListener", function(){
 		it("is run within a zone", function(done){
 			this.timeout(2000);

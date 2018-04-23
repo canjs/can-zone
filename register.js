@@ -133,17 +133,22 @@
 
 	// Returns an array of global event handlers names
 	// https://developer.mozilla.org/en-US/docs/Web/API/GlobalEventHandlers
-	function getGlobalEventHandlersNames() {
-		var names = [];
+  function getGlobalEventHandlersNames() {
+    var names = [];
+    var isWorkerScope = typeof WorkerGlobalScope !== "undefined" &&
+                        typeof self !== "undefined" &&
+                        self instanceof WorkerGlobalScope;
 
-		if (!isNode) {
-			names =  Object.getOwnPropertyNames(HTMLElement.prototype).filter(
-				isGlobalEventHandler
-			);
-		}
+    if (!isNode && !isWorkerScope) {
+      names = Object.getOwnPropertyNames(HTMLElement.prototype).filter(
+        function isGlobalEventHandler(name) {
+          return name.substr(0, 2) === "on";
+        }
+      );
+    }
 
-		return names;
-	}
+    return names;
+  };
 
 	function monitor(object, property, thingToRewrap, global) {
 		var current = object[property];

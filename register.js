@@ -1,6 +1,9 @@
 "format cjs";
 (function(){
 	var isNode = typeof process !== "undefined" && {}.toString.call(process) === "[object process]";
+	var isWorker = typeof WorkerGlobalScope !== "undefined" &&
+		typeof self !== "undefined" &&
+		self instanceof WorkerGlobalScope;
 	var g = typeof WorkerGlobalScope !== "undefined" && (self instanceof WorkerGlobalScope)
 		? self
 		: isNode
@@ -136,8 +139,8 @@
 	function getGlobalEventHandlersNames() {
 		var names = [];
 
-		if (!isNode) {
-			names =  Object.getOwnPropertyNames(HTMLElement.prototype).filter(
+		if (!isNode && !isWorker) {
+			names = Object.getOwnPropertyNames(HTMLElement.prototype).filter(
 				isGlobalEventHandler
 			);
 		}

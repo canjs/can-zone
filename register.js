@@ -1,9 +1,9 @@
 "format cjs";
 (function(){
 	var isNode = typeof process !== "undefined" && {}.toString.call(process) === "[object process]";
-  var isWorker =  typeof WorkerGlobalScope !== "undefined" &&
-                  typeof self !== "undefined" &&
-                  self instanceof WorkerGlobalScope;
+	var isWorker =  typeof WorkerGlobalScope !== "undefined" &&
+			            typeof self !== "undefined" &&
+			            self instanceof WorkerGlobalScope;
 	var g = typeof WorkerGlobalScope !== "undefined" && (self instanceof WorkerGlobalScope)
 		? self
 		: isNode
@@ -136,17 +136,17 @@
 
 	// Returns an array of global event handlers names
 	// https://developer.mozilla.org/en-US/docs/Web/API/GlobalEventHandlers
-  function getGlobalEventHandlersNames() {
-    var names = [];
+	function getGlobalEventHandlersNames() {
+		var names = [];
 
-    if (!isNode && !isWorker) {
-      names = Object.getOwnPropertyNames(HTMLElement.prototype).filter(
-        isGlobalEventHandler
-      );
-    }
+		if (!isNode && !isWorker) {
+			names = Object.getOwnPropertyNames(HTMLElement.prototype).filter(
+			  isGlobalEventHandler
+			);
+		}
 
-    return names;
-  };
+		return names;
+	};
 
 	function monitor(object, property, thingToRewrap, global) {
 		var current = object[property];

@@ -146,7 +146,7 @@
 		}
 
 		return names;
-	};
+	}
 
 	function monitor(object, property, thingToRewrap, global) {
 		var current = object[property];

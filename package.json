@@ -46,7 +46,7 @@
     "steal": "^1.2.10",
     "steal-mocha": "^1.0.0",
     "steal-tools": "^1.5.0",
-    "testee": "^0.7.0"
+    "testee": "^0.8.0"
   },
   "steal": {
     "npmDependencies": [

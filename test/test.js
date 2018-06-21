@@ -905,6 +905,27 @@ if(isBrowser && !isWorker) {
 			})
 			.then(done, done);
 		});
+
+		it("Event handlers ran after the Zone completes throw their error", function(done){
+			var el = document.createElement("div");
+
+			new Zone().run(function(){
+				el.addEventListener("some-event", function(){
+					throw new Error("Hello world!");
+				});
+			})
+			.then(function(){
+				var errorNotSwallowed = false;
+				window.onerror = function(){
+					window.onerror = null;
+					errorNotSwallowed = true;
+					return true;
+				};
+				el.dispatchEvent(new Event("some-event"));
+				assert.ok(errorNotSwallowed, "Threw an error, not swallowed");
+			})
+			.then(done, done);
+		});
 	});
 
 	describe("when third-party library (i.e. affirm) also wraps events (i.e. addEventListener) in strict-mode", function(){

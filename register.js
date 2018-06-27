@@ -1,3 +1,4 @@
+"use strict";
 "format cjs";
 (function(){
 	var isNode = typeof process !== "undefined" && {}.toString.call(process) === "[object process]";

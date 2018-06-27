@@ -1,3 +1,4 @@
+"use strict";
 var canWait = require("can-zone");
 
 var results = [];

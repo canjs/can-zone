@@ -1,3 +1,4 @@
+"use strict";
 var stealTools = require("steal-tools");
 
 stealTools.export({

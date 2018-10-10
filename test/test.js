@@ -510,7 +510,43 @@ if(isBrowser) {
 				})
 				.then(done);
 			});
+
+			it("can be set after send() is called", function(done) {
+				var zone = new Zone();
+				zone.run(function(d){
+					var xhr = new XMLHttpRequest();
+					xhr.open("GET", "http://chat.donejs.com/api/messages");
+					xhr.send();
+					xhr.onload = function(){
+						zone.data.worked = true;
+					};
+				})
+				.then(function(data){
+					assert.equal(data.worked, true);
+				})
+				.then(done);
+			});
 		});
+
+		describe("onreadystatechange", function(){
+			it("can be set after send() is called", function(done) {
+				var zone = new Zone();
+				zone.run(function(d){
+					var xhr = new XMLHttpRequest();
+					xhr.open("GET", "http://chat.donejs.com/api/messages");
+					xhr.send();
+					xhr.onreadystatechange = function(){
+						if(xhr.readyState === 4) {
+							zone.data.worked = true;
+						}
+					};
+				})
+				.then(function(data){
+					assert.equal(data.worked, true);
+				})
+				.then(done);
+			});
+		})
 
 		it("can run a Promise within the callback", function(done){
 			var zone = new Zone();

@@ -2,3 +2,4 @@ node_modules/
 dist/
 doc/
 test/xss/out.html
+.DS_Store

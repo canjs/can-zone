@@ -12,9 +12,12 @@ describe("Timeout Zone", function(){
 		});
 
 		it("Throws if you do not provide it a timeout", function(){
-			assert.throws(function(){
+			try {
 				timeoutZone();
-			}, "Must provide a timeout in milliseconds");
+				assert.ok(false, "Should have thrown");
+			} catch(e) {
+				assert.ok(true, "Must provide a timeout in milliseconds");
+			}
 		});
 
 		it("Works with a timeout of 0", function(){

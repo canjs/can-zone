@@ -43,7 +43,7 @@
     "chai": "^4.0.1",
     "detect-cyclic-packages": "^1.1.0",
     "mocha": "^4.0.0",
-    "steal": "^1.2.10",
+    "steal": "^2.1.7",
     "steal-mocha": "^1.0.0",
     "steal-tools": "^1.5.0",
     "testee": "^0.8.0"

@@ -42,7 +42,7 @@
     "bit-docs": "0.0.8-0",
     "chai": "^4.0.1",
     "detect-cyclic-packages": "^1.1.0",
-    "mocha": "^4.0.0",
+    "mocha": "^6.1.3",
     "steal": "^2.1.7",
     "steal-mocha": "^1.0.0",
     "steal-tools": "^2.0.7",

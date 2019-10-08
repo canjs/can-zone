@@ -258,6 +258,31 @@ describe("new Zone", function(){
 			}, 10);
 		});
 	});
+
+	it("catched errors should be serializable", function(done) {
+		new Zone()
+			.run(function() {
+				throw new Error("uh-oh something went wrong");
+			})
+			.then(
+				function() {
+					assert.fail("zone should not resolve");
+				},
+				function(error) {
+					try {
+						JSON.stringify(error);
+						var d = Object.getOwnPropertyDescriptor(error, "errors");
+						assert.ok(
+							!d.enumerable,
+							"property should not be enumerable"
+						);
+					} catch (err) {
+						assert.fail(err.message);
+					}
+				}
+			)
+			.then(done, done);
+	});
 });
 
 describe("Reusing zones", function(){

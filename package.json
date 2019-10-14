@@ -1,7 +1,7 @@
 {
   "name": "can-zone",
   "version": "1.0.0",
-  "description": "Asynchronous render for all frameworks",
+  "description": "Asynchronous renderrrrrr for all frameworks",
   "main": "lib/zone.js",
   "scripts": {
     "preversion": "npm test && npm run build",

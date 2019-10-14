@@ -271,11 +271,6 @@ describe("new Zone", function(){
 				function(error) {
 					try {
 						JSON.stringify(error);
-						var d = Object.getOwnPropertyDescriptor(error, "errors");
-						assert.ok(
-							!d.enumerable,
-							"property should not be enumerable"
-						);
 					} catch (err) {
 						assert.fail(err.message);
 					}

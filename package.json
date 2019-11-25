@@ -45,7 +45,7 @@
     "mocha": "^4.0.0",
     "steal": "^2.1.7",
     "steal-mocha": "^1.0.0",
-    "steal-tools": "^2.0.7",
+    "steal-tools": "^2.2.4",
     "testee": "^0.9.0"
   },
   "steal": {

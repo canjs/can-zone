@@ -167,6 +167,29 @@ if(env.isNode) {
 				})
 				.then(done, done);
 			});
+
+			it("Loads data from the cache when using onloadend", function(done) {
+				function app() {
+					Promise.resolve().then(function(){
+						return new Promise(function(resolve, reject){
+							var xhr = new XMLHttpRequest();
+							xhr.open("GET", "foo://bar");
+							xhr.onloadend = function(){
+								resolve();
+							};
+							xhr.send();
+						});
+					})
+					.then(function(){
+						Zone.current.data.worked = true;
+					});
+				}
+
+				new Zone(xhrZone).run(app).then(function(data){
+					assert.equal(data.worked, true);
+				})
+				.then(done, done);
+			});
 		});
 
 		describe("URLs relative to server (i.e. done-ssr proxy-request)", function(){

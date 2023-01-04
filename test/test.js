@@ -566,7 +566,25 @@ if(isBrowser) {
 				})
 				.then(done);
 			});
-		})
+		});
+
+		describe("onloadend", function() {
+			it("can be set after send() is called", function(done) {
+				var zone = new Zone();
+				zone.run(function(d){
+					var xhr = new XMLHttpRequest();
+					xhr.open("GET", "http://chat.donejs.com/api/messages");
+					xhr.send();
+					xhr.onloadend = function(){
+						zone.data.worked = true;
+					};
+				})
+				.then(function(data){
+					assert.equal(data.worked, true);
+				})
+				.then(done);
+			});
+		});
 
 		it("can run a Promise within the callback", function(done){
 			var zone = new Zone();

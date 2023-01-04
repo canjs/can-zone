@@ -21,6 +21,7 @@ test_script:
   - node --version
   - npm --version
   # run tests
+  - set PROGRAMFILES=%PROGRAMFILES(X86)%
   - npm run test:node
   - npm run test:win
 

@@ -9,7 +9,7 @@
     "document": "bit-docs",
     "test:node": "mocha test/test.js && mocha test/test_register_node.js",
     "test:browser": "testee test/test.html test/register.html --browsers firefox --reporter Spec",
-    "test:win": "testee test/test.html --browsers firefox --reporter Spec",
+    "test:win": "testee test/test.html --browsers chrome --reporter Spec",
     "test:worker": "testee test/test_worker.html --browsers firefox --report Spec",
     "test:xss": "mocha test/xss/test.js",
     "test": "npm run detect-cycle && npm run test:node && npm run test:browser && npm run test:xss",
@@ -46,7 +46,7 @@
     "steal": "^2.1.7",
     "steal-mocha": "^1.0.0",
     "steal-tools": "^2.0.7",
-    "testee": "^0.9.0"
+    "testee": "^0.10.2"
   },
   "steal": {
     "npmDependencies": [

@@ -1,6 +1,5 @@
 # Test against this version of Node.js
 environment:
-  DEBUG: launchpad:local:browser
   matrix:
   # node.js
   - nodejs_version: "10"
@@ -9,8 +8,6 @@ environment:
 
 # Install scripts. (runs after repo cloning)
 install:
-  # Get latest firefox
-  - choco install firefox
   # Get the latest stable version of Node.js or io.js
   - ps: Install-Product node $env:nodejs_version
   # install modules

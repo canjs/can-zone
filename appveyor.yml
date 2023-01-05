@@ -1,5 +1,6 @@
 # Test against this version of Node.js
 environment:
+  DEBUG: launchpad:local:browser
   matrix:
   # node.js
   - nodejs_version: "10"
@@ -21,7 +22,6 @@ test_script:
   - node --version
   - npm --version
   # run tests
-  - set PROGRAMFILES=%PROGRAMFILES(X86)%
   - npm run test:node
   - npm run test:win
 

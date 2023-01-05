@@ -43,6 +43,7 @@
     "chai": "^4.0.1",
     "detect-cyclic-packages": "^1.1.0",
     "mocha": "^4.0.0",
+    "node-fetch-commonjs": "^3.2.4",
     "steal": "^2.1.7",
     "steal-mocha": "^1.0.0",
     "steal-tools": "^2.0.7",
@@ -65,7 +66,14 @@
     },
     "plugins": [
       "chai"
-    ]
+    ],
+    "envs": {
+      "window-development": {
+        "map": {
+          "node-fetch-commonjs": "@empty"
+        }
+      }
+    }
   },
   "bit-docs": {
     "dependencies": {

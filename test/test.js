@@ -460,7 +460,7 @@ describe("setTimeout", function(){
 	});
 });
 
-describe("setTimeout and XHR", function(){
+describe("setTimeout, XHR, and fetch", function(){
 
 	if(isBrowser) {
 		it("all results returned", function(done){
@@ -482,11 +482,15 @@ describe("setTimeout and XHR", function(){
 					results.push("1-c");
 				};
 				xhr.send();
+
+				fetch("http://chat.donejs.com/api/messages").then(function() {
+					results.push("1-d");
+				})
 			}).then(function(){
 
-				assert.equal(results.length, 3, "Got 3 results");
+				assert.equal(results.length, 4, "Got 4 results" );
 
-			}).then(done);
+			}).then(done, done);
 		});
 	}
 
@@ -597,6 +601,24 @@ if(isBrowser) {
 					});
 				};
 				xhr.send();
+			}).then(function(data){
+				assert.equal(data.worked, true, "got to the then");
+			}).then(done, done);
+		});
+	});
+}
+
+if(isBrowser) {
+	describe("fetch", function(){
+		it("can run a Promise within the callback", function(done){
+			var zone = new Zone();
+			zone.run(function(){
+				fetch("http://chat.donejs.com/api/messages")
+				.then(function(){
+					Promise.resolve().then(function(){
+						Zone.current.data.worked = true;
+					});
+				});
 			}).then(function(data){
 				assert.equal(data.worked, true, "got to the then");
 			}).then(done, done);
@@ -1180,5 +1202,6 @@ describe("Zone.ignore", function(){
 
 // Require other tests
 require("./xhr");
+require("./fetch");
 require("./timeout_test");
 require("./debug_test");

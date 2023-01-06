@@ -33,6 +33,7 @@
 			"Node.prototype.addEventListener",
 			"Node.prototype.removeEventListener",
 			"process.nextTick",
+			"fetch",
 			"setImmediate",
 			"clearImmediate",
 			{
